@@ -192,6 +192,8 @@ public class TestsForListsInJavaUtil {
         .createTestSuite();
   }
 
+  // We are testing LinkedList / testing our tests on LinkedList.
+  @SuppressWarnings("JdkObsolete")
   public Test testsForLinkedList() {
     return ListTestSuiteBuilder.using(
             new TestStringListGenerator() {
@@ -277,7 +279,7 @@ public class TestsForListsInJavaUtil {
     return ListTestSuiteBuilder.using(
             new TestStringListGenerator() {
               @Override
-              protected List<String> create(final String[] elements) {
+              protected List<String> create(String[] elements) {
                 return new AbstractList<String>() {
                   @Override
                   public int size() {
@@ -302,9 +304,9 @@ public class TestsForListsInJavaUtil {
     return ListTestSuiteBuilder.using(
             new TestStringListGenerator() {
               @Override
-              protected List<String> create(final String[] elements) {
+              protected List<String> create(String[] elements) {
                 // For this test we trust ArrayList works
-                final List<String> list = new ArrayList<>();
+                List<String> list = new ArrayList<>();
                 Collections.addAll(list, elements);
                 return new AbstractSequentialList<String>() {
                   @Override
@@ -326,6 +328,8 @@ public class TestsForListsInJavaUtil {
         .createTestSuite();
   }
 
+  // We are testing Vector / testing our tests on Vector.
+  @SuppressWarnings("JdkObsolete")
   private Test testsForVector() {
     return ListTestSuiteBuilder.using(
             new TestStringListGenerator() {

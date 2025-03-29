@@ -31,13 +31,15 @@ import java.util.function.BiConsumer;
 import java.util.function.IntToDoubleFunction;
 import java.util.function.Supplier;
 import junit.framework.TestCase;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Abstract superclass for tests that hash flooding a collection has controlled worst-case
  * performance.
  */
 @GwtIncompatible
+@NullUnmarked
 public abstract class AbstractHashFloodingTest<T> extends TestCase {
   private final List<Construction<T>> constructions;
   private final IntToDoubleFunction constructionAsymptotics;
@@ -110,7 +112,7 @@ public abstract class AbstractHashFloodingTest<T> extends TestCase {
   @FunctionalInterface
   interface Construction<T> {
     @CanIgnoreReturnValue
-    abstract T create(List<?> keys);
+    T create(List<?> keys);
 
     static Construction<Map<Object, Object>> mapFromKeys(
         Supplier<Map<Object, Object>> mutableSupplier) {

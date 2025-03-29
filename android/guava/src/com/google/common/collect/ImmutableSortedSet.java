@@ -39,8 +39,7 @@ import java.util.Iterator;
 import java.util.NavigableSet;
 import java.util.SortedSet;
 import java.util.stream.Collector;
-import javax.annotation.CheckForNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A {@link NavigableSet} whose contents will never change, with many other important properties
@@ -62,7 +61,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 // TODO(benyu): benchmark and optimize all creation paths, which are a mess now
 @GwtCompatible(serializable = true, emulated = true)
 @SuppressWarnings("serial") // we're overriding default serialization
-@ElementTypesAreNonnullByDefault
 public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
     implements NavigableSet<E>, SortedIterable<E> {
   /**
@@ -422,13 +420,13 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
    * A builder for creating immutable sorted set instances, especially {@code public static final}
    * sets ("constant sets"), with a given comparator. Example:
    *
-   * <pre>{@code
+   * {@snippet :
    * public static final ImmutableSortedSet<Number> LUCKY_NUMBERS =
    *     new ImmutableSortedSet.Builder<Number>(ODDS_FIRST_COMPARATOR)
    *         .addAll(SINGLE_DIGIT_PRIMES)
    *         .add(42)
    *         .build();
-   * }</pre>
+   * }
    *
    * <p>Builder instances can be reused; it is safe to call {@link #build} multiple times to build
    * multiple sets in series. Each set is a superset of the set created before it.
@@ -541,11 +539,11 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
     }
   }
 
-  int unsafeCompare(Object a, @CheckForNull Object b) {
+  int unsafeCompare(Object a, @Nullable Object b) {
     return unsafeCompare(comparator, a, b);
   }
 
-  static int unsafeCompare(Comparator<?> comparator, Object a, @CheckForNull Object b) {
+  static int unsafeCompare(Comparator<?> comparator, Object a, @Nullable Object b) {
     // Pretend the comparator can compare anything. If it turns out it can't
     // compare a and b, we should get a CCE or NPE on the subsequent line. Only methods
     // that are spec'd to throw CCE and NPE should call this.
@@ -588,7 +586,9 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
     return headSet(toElement, false);
   }
 
-  /** @since 12.0 */
+  /**
+   * @since 12.0
+   */
   @Override
   public ImmutableSortedSet<E> headSet(E toElement, boolean inclusive) {
     return headSetImpl(checkNotNull(toElement), inclusive);
@@ -611,7 +611,9 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
     return subSet(fromElement, true, toElement, false);
   }
 
-  /** @since 12.0 */
+  /**
+   * @since 12.0
+   */
   @GwtIncompatible // NavigableSet
   @Override
   public ImmutableSortedSet<E> subSet(
@@ -637,7 +639,9 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
     return tailSet(fromElement, true);
   }
 
-  /** @since 12.0 */
+  /**
+   * @since 12.0
+   */
   @Override
   public ImmutableSortedSet<E> tailSet(E fromElement, boolean inclusive) {
     return tailSetImpl(checkNotNull(fromElement), inclusive);
@@ -654,33 +658,37 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
 
   abstract ImmutableSortedSet<E> tailSetImpl(E fromElement, boolean inclusive);
 
-  /** @since 12.0 */
+  /**
+   * @since 12.0
+   */
   @GwtIncompatible // NavigableSet
   @Override
-  @CheckForNull
-  public E lower(E e) {
+  public @Nullable E lower(E e) {
     return Iterators.<@Nullable E>getNext(headSet(e, false).descendingIterator(), null);
   }
 
-  /** @since 12.0 */
+  /**
+   * @since 12.0
+   */
   @Override
-  @CheckForNull
-  public E floor(E e) {
+  public @Nullable E floor(E e) {
     return Iterators.<@Nullable E>getNext(headSet(e, true).descendingIterator(), null);
   }
 
-  /** @since 12.0 */
+  /**
+   * @since 12.0
+   */
   @Override
-  @CheckForNull
-  public E ceiling(E e) {
+  public @Nullable E ceiling(E e) {
     return Iterables.<@Nullable E>getFirst(tailSet(e, true), null);
   }
 
-  /** @since 12.0 */
+  /**
+   * @since 12.0
+   */
   @GwtIncompatible // NavigableSet
   @Override
-  @CheckForNull
-  public E higher(E e) {
+  public @Nullable E higher(E e) {
     return Iterables.<@Nullable E>getFirst(tailSet(e, false), null);
   }
 
@@ -706,8 +714,7 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
   @GwtIncompatible // NavigableSet
   @Override
   @DoNotCall("Always throws UnsupportedOperationException")
-  @CheckForNull
-  public final E pollFirst() {
+  public final @Nullable E pollFirst() {
     throw new UnsupportedOperationException();
   }
 
@@ -723,17 +730,17 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
   @GwtIncompatible // NavigableSet
   @Override
   @DoNotCall("Always throws UnsupportedOperationException")
-  @CheckForNull
-  public final E pollLast() {
+  public final @Nullable E pollLast() {
     throw new UnsupportedOperationException();
   }
 
   @GwtIncompatible // NavigableSet
   @LazyInit
-  @CheckForNull
-  transient ImmutableSortedSet<E> descendingSet;
+  transient @Nullable ImmutableSortedSet<E> descendingSet;
 
-  /** @since 12.0 */
+  /**
+   * @since 12.0
+   */
   @GwtIncompatible // NavigableSet
   @Override
   public ImmutableSortedSet<E> descendingSet() {
@@ -752,13 +759,15 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
   @GwtIncompatible // NavigableSet
   abstract ImmutableSortedSet<E> createDescendingSet();
 
-  /** @since 12.0 */
+  /**
+   * @since 12.0
+   */
   @GwtIncompatible // NavigableSet
   @Override
   public abstract UnmodifiableIterator<E> descendingIterator();
 
   /** Returns the position of an element within the set, or -1 if not present. */
-  abstract int indexOf(@CheckForNull Object target);
+  abstract int indexOf(@Nullable Object target);
 
   /*
    * This class is used to serialize all ImmutableSortedSet instances,
@@ -781,7 +790,7 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
       return new Builder<E>(comparator).add((E[]) elements).build();
     }
 
-    private static final long serialVersionUID = 0;
+    @GwtIncompatible @J2ktIncompatible private static final long serialVersionUID = 0;
   }
 
   @J2ktIncompatible // serialization
@@ -944,5 +953,5 @@ public abstract class ImmutableSortedSet<E> extends ImmutableSet<E>
     throw new UnsupportedOperationException();
   }
 
-  private static final long serialVersionUID = 0xdecaf;
+  @GwtIncompatible @J2ktIncompatible private static final long serialVersionUID = 0xdecaf;
 }

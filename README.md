@@ -1,8 +1,8 @@
 # Guava: Google Core Libraries for Java
 
-[![Latest release](https://img.shields.io/github/release/google/guava.svg)](https://github.com/google/guava/releases/latest)
-[![Build Status](https://github.com/google/guava/workflows/CI/badge.svg?branch=master)](https://github.com/google/guava/actions)
-[![OpenSSF Best Practices](https://bestpractices.coreinfrastructure.org/projects/7197/badge)](https://bestpractices.coreinfrastructure.org/projects/7197)
+[![GitHub Release](https://img.shields.io/github/v/release/google/guava)](https://github.com/google/guava/releases/latest)
+[![CI](https://github.com/google/guava/actions/workflows/ci.yml/badge.svg)](https://github.com/google/guava/actions/workflows/ci.yml)
+[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/7197/badge)](https://www.bestpractices.dev/projects/7197)
 
 
 
@@ -28,8 +28,8 @@ Guava comes in two flavors:
 Guava's Maven group ID is `com.google.guava`, and its artifact ID is `guava`.
 Guava provides two different "flavors": one for use on a (Java 8+) JRE and one
 for use on Android or by any library that wants to be compatible with Android.
-These flavors are specified in the Maven version field as either `33.3.1-jre` or
-`33.3.1-android`. For more about depending on Guava, see
+These flavors are specified in the Maven version field as either `33.4.6-jre` or
+`33.4.6-android`. For more about depending on Guava, see
 [using Guava in your build].
 
 To add a dependency on Guava using Maven, use the following:
@@ -38,9 +38,9 @@ To add a dependency on Guava using Maven, use the following:
 <dependency>
   <groupId>com.google.guava</groupId>
   <artifactId>guava</artifactId>
-  <version>33.3.1-jre</version>
+  <version>33.4.6-jre</version>
   <!-- or, for Android: -->
-  <version>33.3.1-android</version>
+  <version>33.4.6-android</version>
 </dependency>
 ```
 
@@ -51,16 +51,16 @@ dependencies {
   // Pick one:
 
   // 1. Use Guava in your implementation only:
-  implementation("com.google.guava:guava:33.3.1-jre")
+  implementation("com.google.guava:guava:33.4.6-jre")
 
   // 2. Use Guava types in your public API:
-  api("com.google.guava:guava:33.3.1-jre")
+  api("com.google.guava:guava:33.4.6-jre")
 
   // 3. Android - Use Guava in your implementation only:
-  implementation("com.google.guava:guava:33.3.1-android")
+  implementation("com.google.guava:guava:33.4.6-android")
 
   // 4. Android - Use Guava types in your public API:
-  api("com.google.guava:guava:33.3.1-android")
+  api("com.google.guava:guava:33.4.6-android")
 }
 ```
 
@@ -71,11 +71,11 @@ consult the
 ## Snapshots and Documentation
 
 Snapshots of Guava built from the `master` branch are available through Maven
-using version `HEAD-jre-SNAPSHOT`, or `HEAD-android-SNAPSHOT` for the Android
-flavor.
+using version `999.0.0-HEAD-jre-SNAPSHOT`, or `999.0.0-HEAD-android-SNAPSHOT`
+for the Android flavor.
 
--   Snapshot API Docs: [guava][guava-snapshot-api-docs]
--   Snapshot API Diffs: [guava][guava-snapshot-api-diffs]
+[Snapshot API Javadoc][guava-snapshot-api-docs] as well as
+[Snapshot API Diffs][guava-snapshot-api-diffs] are also available.
 
 ## Learn about Guava
 
@@ -108,7 +108,7 @@ flavor.
     options open in case of surprises (like, say, a serious security problem).
 
 3.  Guava has one dependency that is needed for linkage at runtime:
-    `com.google.guava:failureaccess:1.0.2`. It also has
+    `com.google.guava:failureaccess:1.0.3`. It also has
     [some annotation-only dependencies][guava-deps], which we discuss in more
     detail at that link.
 

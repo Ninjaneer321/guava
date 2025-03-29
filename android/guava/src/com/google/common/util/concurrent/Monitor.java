@@ -27,7 +27,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BooleanSupplier;
-import javax.annotation.CheckForNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A synchronization abstraction supporting waiting on arbitrary boolean conditions.
@@ -53,20 +53,20 @@ import javax.annotation.CheckForNull;
  * followed immediately by a <i>try/finally</i> block to ensure that the current thread leaves the
  * monitor cleanly:
  *
- * <pre>{@code
+ * {@snippet :
  * monitor.enter();
  * try {
  *   // do things while occupying the monitor
  * } finally {
  *   monitor.leave();
  * }
- * }</pre>
+ * }
  *
  * <p>A call to any of the <i>enter</i> methods with <b>boolean</b> return type should always appear
  * as the condition of an <i>if</i> statement containing a <i>try/finally</i> block to ensure that
  * the current thread leaves the monitor cleanly:
  *
- * <pre>{@code
+ * {@snippet :
  * if (monitor.tryEnter()) {
  *   try {
  *     // do things while occupying the monitor
@@ -76,7 +76,7 @@ import javax.annotation.CheckForNull;
  * } else {
  *   // do other things since the monitor was not available
  * }
- * }</pre>
+ * }
  *
  * <h2>Comparison with {@code synchronized} and {@code ReentrantLock}</h2>
  *
@@ -91,7 +91,7 @@ import javax.annotation.CheckForNull;
  * {@code notifyAll()} must be used instead of {@code notify()} because there are two different
  * logical conditions being awaited.
  *
- * <pre>{@code
+ * {@snippet :
  * public class SafeBox<V> {
  *   private V value;
  *
@@ -113,7 +113,7 @@ import javax.annotation.CheckForNull;
  *     notifyAll();
  *   }
  * }
- * }</pre>
+ * }
  *
  * <h3>{@code ReentrantLock}</h3>
  *
@@ -122,7 +122,7 @@ import javax.annotation.CheckForNull;
  * one advantage is that we can introduce two separate {@code Condition} objects, which allows us to
  * use {@code signal()} instead of {@code signalAll()}, which may be a performance benefit.
  *
- * <pre>{@code
+ * {@snippet :
  * public class SafeBox<V> {
  *   private V value;
  *   private final ReentrantLock lock = new ReentrantLock();
@@ -157,7 +157,7 @@ import javax.annotation.CheckForNull;
  *     }
  *   }
  * }
- * }</pre>
+ * }
  *
  * <h3>{@code Monitor}</h3>
  *
@@ -167,7 +167,7 @@ import javax.annotation.CheckForNull;
  * Finally, the programmer no longer has to hand-code the wait loop, and therefore doesn't have to
  * remember to use {@code while} instead of {@code if}.
  *
- * <pre>{@code
+ * {@snippet :
  * public class SafeBox<V> {
  *   private V value;
  *   private final Monitor monitor = new Monitor();
@@ -194,7 +194,7 @@ import javax.annotation.CheckForNull;
  *     }
  *   }
  * }
- * }</pre>
+ * }
  *
  * @author Justin T. Sampson
  * @author Martin Buchholz
@@ -203,7 +203,6 @@ import javax.annotation.CheckForNull;
 @J2ktIncompatible
 @GwtIncompatible
 @SuppressWarnings("GuardedBy") // TODO(b/35466881): Fix or suppress.
-@ElementTypesAreNonnullByDefault
 public final class Monitor {
   // TODO(user): Use raw LockSupport or AbstractQueuedSynchronizer instead of ReentrantLock.
   // TODO(user): "Port" jsr166 tests for ReentrantLock.
@@ -314,8 +313,7 @@ public final class Monitor {
 
     /** The next active guard */
     @GuardedBy("monitor.lock")
-    @CheckForNull
-    Guard next;
+    @Nullable Guard next;
 
     protected Guard(Monitor monitor) {
       this.monitor = checkNotNull(monitor, "monitor");
@@ -341,8 +339,7 @@ public final class Monitor {
    * A linked list threaded through the Guard.next field.
    */
   @GuardedBy("lock")
-  @CheckForNull
-  private Guard activeGuards = null;
+  private @Nullable Guard activeGuards = null;
 
   /**
    * Creates a monitor with a non-fair (but fast) ordering policy. Equivalent to {@code
@@ -368,12 +365,12 @@ public final class Monitor {
    *
    * @param isSatisfied the new guard's boolean condition (see {@link Guard#isSatisfied
    *     isSatisfied()})
-   * @since NEXT (but since 21.0 in the JRE flavor)
+   * @since 33.4.0 (but since 21.0 in the JRE flavor)
    */
   @SuppressWarnings("Java7ApiChecker")
   // We have to rely on users not to call this, as NewApi won't flag BooleanSupplier creation.
   @IgnoreJRERequirement
-  public Guard newGuard(final BooleanSupplier isSatisfied) {
+  public Guard newGuard(BooleanSupplier isSatisfied) {
     checkNotNull(isSatisfied, "isSatisfied");
     return new Guard(this) {
       @Override
@@ -392,7 +389,7 @@ public final class Monitor {
    * Enters this monitor. Blocks at most the given time.
    *
    * @return whether the monitor was entered
-   * @since NEXT (but since 28.0 in the JRE flavor)
+   * @since 33.4.0 (but since 28.0 in the JRE flavor)
    */
   @SuppressWarnings("Java7ApiChecker")
   @IgnoreJRERequirement // Users will use this only if they're already using Duration.
@@ -407,14 +404,14 @@ public final class Monitor {
    */
   @SuppressWarnings("GoodTime") // should accept a java.time.Duration
   public boolean enter(long time, TimeUnit unit) {
-    final long timeoutNanos = toSafeNanos(time, unit);
-    final ReentrantLock lock = this.lock;
+    long timeoutNanos = toSafeNanos(time, unit);
+    ReentrantLock lock = this.lock;
     if (!fair && lock.tryLock()) {
       return true;
     }
     boolean interrupted = Thread.interrupted();
     try {
-      final long startTime = System.nanoTime();
+      long startTime = System.nanoTime();
       for (long remainingNanos = timeoutNanos; ; ) {
         try {
           return lock.tryLock(remainingNanos, TimeUnit.NANOSECONDS);
@@ -444,7 +441,7 @@ public final class Monitor {
    *
    * @return whether the monitor was entered
    * @throws InterruptedException if interrupted while waiting
-   * @since NEXT (but since 28.0 in the JRE flavor)
+   * @since 33.4.0 (but since 28.0 in the JRE flavor)
    */
   @SuppressWarnings("Java7ApiChecker")
   @IgnoreJRERequirement // Users will use this only if they're already using Duration.
@@ -483,7 +480,7 @@ public final class Monitor {
     if (guard.monitor != this) {
       throw new IllegalMonitorStateException();
     }
-    final ReentrantLock lock = this.lock;
+    ReentrantLock lock = this.lock;
     boolean signalBeforeWaiting = lock.isHeldByCurrentThread();
     lock.lockInterruptibly();
 
@@ -507,7 +504,7 @@ public final class Monitor {
    *
    * @return whether the monitor was entered, which guarantees that the guard is now satisfied
    * @throws InterruptedException if interrupted while waiting
-   * @since NEXT (but since 28.0 in the JRE flavor)
+   * @since 33.4.0 (but since 28.0 in the JRE flavor)
    */
   @SuppressWarnings("Java7ApiChecker")
   @IgnoreJRERequirement // Users will use this only if they're already using Duration.
@@ -528,11 +525,11 @@ public final class Monitor {
     "LabelledBreakTarget", // TODO(b/345814817): Maybe fix.
   })
   public boolean enterWhen(Guard guard, long time, TimeUnit unit) throws InterruptedException {
-    final long timeoutNanos = toSafeNanos(time, unit);
+    long timeoutNanos = toSafeNanos(time, unit);
     if (guard.monitor != this) {
       throw new IllegalMonitorStateException();
     }
-    final ReentrantLock lock = this.lock;
+    ReentrantLock lock = this.lock;
     boolean reentrant = lock.isHeldByCurrentThread();
     long startTime = 0L;
 
@@ -583,7 +580,7 @@ public final class Monitor {
     if (guard.monitor != this) {
       throw new IllegalMonitorStateException();
     }
-    final ReentrantLock lock = this.lock;
+    ReentrantLock lock = this.lock;
     boolean signalBeforeWaiting = lock.isHeldByCurrentThread();
     lock.lock();
 
@@ -605,7 +602,7 @@ public final class Monitor {
    * the time to acquire the lock and the time to wait for the guard to be satisfied.
    *
    * @return whether the monitor was entered, which guarantees that the guard is now satisfied
-   * @since NEXT (but since 28.0 in the JRE flavor)
+   * @since 33.4.0 (but since 28.0 in the JRE flavor)
    */
   @SuppressWarnings("Java7ApiChecker")
   @IgnoreJRERequirement // Users will use this only if they're already using Duration.
@@ -621,11 +618,11 @@ public final class Monitor {
    */
   @SuppressWarnings("GoodTime") // should accept a java.time.Duration
   public boolean enterWhenUninterruptibly(Guard guard, long time, TimeUnit unit) {
-    final long timeoutNanos = toSafeNanos(time, unit);
+    long timeoutNanos = toSafeNanos(time, unit);
     if (guard.monitor != this) {
       throw new IllegalMonitorStateException();
     }
-    final ReentrantLock lock = this.lock;
+    ReentrantLock lock = this.lock;
     long startTime = 0L;
     boolean signalBeforeWaiting = lock.isHeldByCurrentThread();
     boolean interrupted = Thread.interrupted();
@@ -653,7 +650,7 @@ public final class Monitor {
             if (guard.isSatisfied()) {
               satisfied = true;
             } else {
-              final long remainingNanos;
+              long remainingNanos;
               if (startTime == 0L) {
                 startTime = initNanoTime(timeoutNanos);
                 remainingNanos = timeoutNanos;
@@ -690,7 +687,7 @@ public final class Monitor {
     if (guard.monitor != this) {
       throw new IllegalMonitorStateException();
     }
-    final ReentrantLock lock = this.lock;
+    ReentrantLock lock = this.lock;
     lock.lock();
 
     boolean satisfied = false;
@@ -708,7 +705,7 @@ public final class Monitor {
    * lock, but does not wait for the guard to be satisfied.
    *
    * @return whether the monitor was entered, which guarantees that the guard is now satisfied
-   * @since NEXT (but since 28.0 in the JRE flavor)
+   * @since 33.4.0 (but since 28.0 in the JRE flavor)
    */
   @SuppressWarnings("Java7ApiChecker")
   @IgnoreJRERequirement // Users will use this only if they're already using Duration.
@@ -752,7 +749,7 @@ public final class Monitor {
     if (guard.monitor != this) {
       throw new IllegalMonitorStateException();
     }
-    final ReentrantLock lock = this.lock;
+    ReentrantLock lock = this.lock;
     lock.lockInterruptibly();
 
     boolean satisfied = false;
@@ -770,7 +767,7 @@ public final class Monitor {
    * lock, but does not wait for the guard to be satisfied, and may be interrupted.
    *
    * @return whether the monitor was entered, which guarantees that the guard is now satisfied
-   * @since NEXT (but since 28.0 in the JRE flavor)
+   * @since 33.4.0 (but since 28.0 in the JRE flavor)
    */
   @SuppressWarnings("Java7ApiChecker")
   @IgnoreJRERequirement // Users will use this only if they're already using Duration.
@@ -790,7 +787,7 @@ public final class Monitor {
     if (guard.monitor != this) {
       throw new IllegalMonitorStateException();
     }
-    final ReentrantLock lock = this.lock;
+    ReentrantLock lock = this.lock;
     if (!lock.tryLock(time, unit)) {
       return false;
     }
@@ -817,7 +814,7 @@ public final class Monitor {
     if (guard.monitor != this) {
       throw new IllegalMonitorStateException();
     }
-    final ReentrantLock lock = this.lock;
+    ReentrantLock lock = this.lock;
     if (!lock.tryLock()) {
       return false;
     }
@@ -853,7 +850,7 @@ public final class Monitor {
    *
    * @return whether the guard is now satisfied
    * @throws InterruptedException if interrupted while waiting
-   * @since NEXT (but since 28.0 in the JRE flavor)
+   * @since 33.4.0 (but since 28.0 in the JRE flavor)
    */
   @SuppressWarnings("Java7ApiChecker")
   @IgnoreJRERequirement // Users will use this only if they're already using Duration.
@@ -870,7 +867,7 @@ public final class Monitor {
    */
   @SuppressWarnings("GoodTime") // should accept a java.time.Duration
   public boolean waitFor(Guard guard, long time, TimeUnit unit) throws InterruptedException {
-    final long timeoutNanos = toSafeNanos(time, unit);
+    long timeoutNanos = toSafeNanos(time, unit);
     if (!((guard.monitor == this) && lock.isHeldByCurrentThread())) {
       throw new IllegalMonitorStateException();
     }
@@ -901,7 +898,7 @@ public final class Monitor {
    * thread currently occupying this monitor.
    *
    * @return whether the guard is now satisfied
-   * @since NEXT (but since 28.0 in the JRE flavor)
+   * @since 33.4.0 (but since 28.0 in the JRE flavor)
    */
   @SuppressWarnings("Java7ApiChecker")
   @IgnoreJRERequirement // Users will use this only if they're already using Duration.
@@ -917,7 +914,7 @@ public final class Monitor {
    */
   @SuppressWarnings("GoodTime") // should accept a java.time.Duration
   public boolean waitForUninterruptibly(Guard guard, long time, TimeUnit unit) {
-    final long timeoutNanos = toSafeNanos(time, unit);
+    long timeoutNanos = toSafeNanos(time, unit);
     if (!((guard.monitor == this) && lock.isHeldByCurrentThread())) {
       throw new IllegalMonitorStateException();
     }
@@ -925,7 +922,7 @@ public final class Monitor {
       return true;
     }
     boolean signalBeforeWaiting = true;
-    final long startTime = initNanoTime(timeoutNanos);
+    long startTime = initNanoTime(timeoutNanos);
     boolean interrupted = Thread.interrupted();
     try {
       for (long remainingNanos = timeoutNanos; ; ) {
@@ -949,7 +946,7 @@ public final class Monitor {
 
   /** Leaves this monitor. May be called only by a thread currently occupying this monitor. */
   public void leave() {
-    final ReentrantLock lock = this.lock;
+    ReentrantLock lock = this.lock;
     try {
       // No need to signal if we will still be holding the lock when we return
       if (lock.getHoldCount() == 1) {

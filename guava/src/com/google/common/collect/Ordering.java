@@ -25,9 +25,12 @@ import static java.util.Collections.sort;
 import static java.util.Collections.unmodifiableList;
 
 import com.google.common.annotations.GwtCompatible;
+import com.google.common.annotations.GwtIncompatible;
 import com.google.common.annotations.J2ktIncompatible;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
+import com.google.errorprone.annotations.InlineMe;
+import com.google.errorprone.annotations.InlineMeValidationDisabled;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -43,9 +46,8 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
-import javax.annotation.CheckForNull;
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A comparator, with additional methods to support common operations. This is an "enriched" version
@@ -95,13 +97,13 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  *
  * <p>Complex chained orderings like the following example can be challenging to understand.
  *
- * <pre>{@code
+ * {@snippet :
  * Ordering<Foo> ordering =
  *     Ordering.natural()
  *         .nullsFirst()
  *         .onResultOf(getBarFunction)
  *         .nullsLast();
- * }</pre>
+ * }
  *
  * Note that each chaining method returns a new ordering instance which is backed by the previous
  * instance, but has the chance to act on values <i>before</i> handing off to that backing instance.
@@ -151,7 +153,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @since 2.0
  */
 @GwtCompatible
-@ElementTypesAreNonnullByDefault
 public abstract class Ordering<T extends @Nullable Object> implements Comparator<T> {
   // Natural order
 
@@ -201,6 +202,9 @@ public abstract class Ordering<T extends @Nullable Object> implements Comparator
    *
    * @deprecated no need to use this
    */
+  @InlineMe(
+      replacement = "checkNotNull(ordering)",
+      staticImports = "com.google.common.base.Preconditions.checkNotNull")
   @GwtCompatible(serializable = true)
   @Deprecated
   public static <T extends @Nullable Object> Ordering<T> from(Ordering<T> ordering) {
@@ -268,10 +272,10 @@ public abstract class Ordering<T extends @Nullable Object> implements Comparator
    *
    * <p>Example:
    *
-   * <pre>{@code
+   * {@snippet :
    * Ordering.allEqual().nullsLast().sortedCopy(
    *     asList(t, null, e, s, null, t, null))
-   * }</pre>
+   * }
    *
    * <p>Assuming {@code t}, {@code e} and {@code s} are non-null, this returns {@code [t, e, s, t,
    * null, null, null]} regardless of the true comparison order of those three values (which might
@@ -356,7 +360,7 @@ public abstract class Ordering<T extends @Nullable Object> implements Comparator
     }
 
     @Override
-    public int compare(@CheckForNull Object left, @CheckForNull Object right) {
+    public int compare(@Nullable Object left, @Nullable Object right) {
       if (left == right) {
         return 0;
       } else if (left == null) {
@@ -454,10 +458,10 @@ public abstract class Ordering<T extends @Nullable Object> implements Comparator
    * then comparing those results using {@code this}. For example, to compare objects by their
    * string forms, in a case-insensitive manner, use:
    *
-   * <pre>{@code
+   * {@snippet :
    * Ordering.from(String.CASE_INSENSITIVE_ORDER)
    *     .onResultOf(Functions.toStringFunction())
-   * }</pre>
+   * }
    *
    * <p><b>Java 8+ users:</b> Use {@code Comparator.comparing(function, thisComparator)} instead
    * (you can omit the comparator if it is the natural order).
@@ -951,6 +955,13 @@ public abstract class Ordering<T extends @Nullable Object> implements Comparator
    * @param key the key to be searched for
    * @deprecated Use {@link Collections#binarySearch(List, Object, Comparator)} directly.
    */
+  @InlineMe(
+      replacement = "Collections.binarySearch(sortedList, key, this)",
+      imports = "java.util.Collections")
+  // We can't compatibly make this `final` now.
+  @InlineMeValidationDisabled(
+      "While binarySearch() is not final, the inlining is still safe as long as any overrides"
+          + " follow the contract.")
   @Deprecated
   public int binarySearch(
       List<? extends T> sortedList, @ParametricNullness T key) {
@@ -970,7 +981,7 @@ public abstract class Ordering<T extends @Nullable Object> implements Comparator
       this.value = value;
     }
 
-    private static final long serialVersionUID = 0;
+    @GwtIncompatible @J2ktIncompatible private static final long serialVersionUID = 0;
   }
 
   // Never make these public

@@ -46,19 +46,23 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Test suites for wrappers in {@code Maps}.
  *
  * @author Louis Wasserman
  */
+@NullUnmarked
+@AndroidIncompatible // test-suite builders
 public class MapsCollectionTest extends TestCase {
   public static Test suite() {
     TestSuite suite = new TestSuite();
@@ -562,7 +566,7 @@ public class MapsCollectionTest extends TestCase {
       new Predicate<String>() {
         @Override
         public boolean apply(@Nullable String string) {
-          return !"banana".equals(string) && !"eggplant".equals(string);
+          return !Objects.equals(string, "banana") && !Objects.equals(string, "eggplant");
         }
       };
 
@@ -570,7 +574,7 @@ public class MapsCollectionTest extends TestCase {
       new Predicate<String>() {
         @Override
         public boolean apply(@Nullable String string) {
-          return !"toast".equals(string) && !"spam".equals(string);
+          return !Objects.equals(string, "toast") && !Objects.equals(string, "spam");
         }
       };
 

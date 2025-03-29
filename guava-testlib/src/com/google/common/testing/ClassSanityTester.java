@@ -50,10 +50,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
-import javax.annotation.CheckForNull;
 import junit.framework.Assert;
 import junit.framework.AssertionFailedError;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Tester that runs automated sanity tests for any given class. A typical use case is to test static
@@ -81,6 +81,8 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  */
 @GwtIncompatible
 @J2ktIncompatible
+@NullUnmarked
+@SuppressWarnings("nullness")
 public final class ClassSanityTester {
 
   private static final Ordering<Invokable<?, ?>> BY_METHOD_NAME =
@@ -201,7 +203,9 @@ public final class ClassSanityTester {
   }
 
   void doTestNulls(Class<?> cls, Visibility visibility)
-      throws ParameterNotInstantiableException, IllegalAccessException, InvocationTargetException,
+      throws ParameterNotInstantiableException,
+          IllegalAccessException,
+          InvocationTargetException,
           FactoryMethodReturnsNullException {
     if (!Modifier.isAbstract(cls.getModifiers())) {
       nullPointerTester.testConstructors(cls, visibility);
@@ -293,8 +297,11 @@ public final class ClassSanityTester {
   }
 
   void doTestEquals(Class<?> cls)
-      throws ParameterNotInstantiableException, ParameterHasNoDistinctValueException,
-          IllegalAccessException, InvocationTargetException, FactoryMethodReturnsNullException {
+      throws ParameterNotInstantiableException,
+          ParameterHasNoDistinctValueException,
+          IllegalAccessException,
+          InvocationTargetException,
+          FactoryMethodReturnsNullException {
     if (cls.isEnum()) {
       return;
     }
@@ -563,9 +570,12 @@ public final class ClassSanityTester {
     }
   }
 
-  private void testEqualsUsing(final Invokable<?, ?> factory)
-      throws ParameterNotInstantiableException, ParameterHasNoDistinctValueException,
-          IllegalAccessException, InvocationTargetException, FactoryMethodReturnsNullException {
+  private void testEqualsUsing(Invokable<?, ?> factory)
+      throws ParameterNotInstantiableException,
+          ParameterHasNoDistinctValueException,
+          IllegalAccessException,
+          InvocationTargetException,
+          FactoryMethodReturnsNullException {
     List<Parameter> params = factory.getParameters();
     List<FreshValueGenerator> argGenerators = Lists.newArrayListWithCapacity(params.size());
     List<@Nullable Object> args = Lists.newArrayListWithCapacity(params.size());
@@ -577,7 +587,7 @@ public final class ClassSanityTester {
     Object instance = createInstance(factory, args);
     List<Object> equalArgs = generateEqualFactoryArguments(factory, params, args);
     // Each group is a List of items, each item has a list of factory args.
-    final List<List<List<Object>>> argGroups = Lists.newArrayList();
+    List<List<List<Object>>> argGroups = Lists.newArrayList();
     argGroups.add(ImmutableList.of(args, equalArgs));
     EqualsTester tester =
         new EqualsTester(
@@ -615,8 +625,10 @@ public final class ClassSanityTester {
    */
   private List<Object> generateEqualFactoryArguments(
       Invokable<?, ?> factory, List<Parameter> params, List<Object> args)
-      throws ParameterNotInstantiableException, FactoryMethodReturnsNullException,
-          InvocationTargetException, IllegalAccessException {
+      throws ParameterNotInstantiableException,
+          FactoryMethodReturnsNullException,
+          InvocationTargetException,
+          IllegalAccessException {
     List<Object> equalArgs = Lists.newArrayList(args);
     for (int i = 0; i < args.size(); i++) {
       Parameter param = params.get(i);
@@ -654,8 +666,7 @@ public final class ClassSanityTester {
     FreshValueGenerator generator =
         new FreshValueGenerator() {
           @Override
-          @CheckForNull
-          Object interfaceMethodCalled(Class<?> interfaceType, Method method) {
+          @Nullable Object interfaceMethodCalled(Class<?> interfaceType, Method method) {
             return getDummyValue(TypeToken.of(interfaceType).method(method).getReturnType());
           }
         };
@@ -734,8 +745,7 @@ public final class ClassSanityTester {
     return args;
   }
 
-  @CheckForNull
-  private <T> T getDummyValue(TypeToken<T> type) {
+  private <T> @Nullable T getDummyValue(TypeToken<T> type) {
     Class<? super T> rawType = type.getRawType();
     @SuppressWarnings("unchecked") // Assume all default values are generics safe.
     T defaultValue = (T) defaultValues.getInstance(rawType);

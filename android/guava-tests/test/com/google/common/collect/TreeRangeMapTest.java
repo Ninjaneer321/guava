@@ -33,6 +33,7 @@ import java.util.NoSuchElementException;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Tests for {@code TreeRangeMap}.
@@ -40,7 +41,9 @@ import junit.framework.TestSuite;
  * @author Louis Wasserman
  */
 @GwtIncompatible // NavigableMap
+@NullUnmarked
 public class TreeRangeMapTest extends TestCase {
+  @AndroidIncompatible // test-suite builders
   public static Test suite() {
     TestSuite suite = new TestSuite();
     suite.addTestSuite(TreeRangeMapTest.class);

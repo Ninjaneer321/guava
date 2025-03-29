@@ -23,7 +23,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.LinkedHashMap;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A {@code Multiset} implementation with predictable iteration order. Its iterator orders elements
@@ -40,7 +40,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @since 2.0
  */
 @GwtCompatible(serializable = true, emulated = true)
-@ElementTypesAreNonnullByDefault
 public final class LinkedHashMultiset<E extends @Nullable Object>
     extends AbstractMapBasedMultiset<E> {
 
@@ -102,7 +101,5 @@ public final class LinkedHashMultiset<E extends @Nullable Object>
     Serialization.populateMultiset(this, stream, distinctElements);
   }
 
-  @GwtIncompatible // not needed in emulated source
-  @J2ktIncompatible
-  private static final long serialVersionUID = 0;
+  @GwtIncompatible @J2ktIncompatible private static final long serialVersionUID = 0;
 }

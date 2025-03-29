@@ -48,7 +48,8 @@ import java.util.function.BiPredicate;
 import java.util.stream.Collector;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Unit test for {@link ImmutableSet}.
@@ -58,11 +59,12 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @author Nick Kralevich
  */
 @GwtCompatible(emulated = true)
-@ElementTypesAreNonnullByDefault
+@NullMarked
 public class ImmutableSetTest extends AbstractImmutableSetTest {
 
   @J2ktIncompatible
   @GwtIncompatible // suite
+  @AndroidIncompatible // test-suite builders
   public static Test suite() {
     TestSuite suite = new TestSuite();
 
@@ -232,6 +234,7 @@ public class ImmutableSetTest extends AbstractImmutableSetTest {
 
   public void testCreation_oneDuplicate() {
     // now we'll get the varargs overload
+    @SuppressWarnings("DistinctVarargsChecker") // deliberately testing deduplication
     ImmutableSet<String> set =
         ImmutableSet.of("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "a");
     assertEquals(
@@ -241,6 +244,7 @@ public class ImmutableSetTest extends AbstractImmutableSetTest {
 
   public void testCreation_manyDuplicates() {
     // now we'll get the varargs overload
+    @SuppressWarnings("DistinctVarargsChecker") // deliberately testing deduplication
     ImmutableSet<String> set =
         ImmutableSet.of("a", "b", "c", "c", "c", "c", "b", "b", "a", "a", "c", "c", "c", "a");
     assertThat(set).containsExactly("a", "b", "c").inOrder();
@@ -362,6 +366,7 @@ public class ImmutableSetTest extends AbstractImmutableSetTest {
     return LAST_COLOR_ADDED;
   }
 
+  @SuppressWarnings("DistinctVarargsChecker") // deliberately testing deduplication
   public void testEquals() {
     new EqualsTester()
         .addEqualityGroup(ImmutableSet.of(), ImmutableSet.of())

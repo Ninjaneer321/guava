@@ -36,7 +36,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Tester to ensure forwarding wrapper works by delegating calls to the corresponding method with
@@ -44,20 +45,20 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  *
  * <p>For example:
  *
- * <pre>{@code
+ * {@snippet :
  * new ForwardingWrapperTester().testForwarding(Foo.class, new Function<Foo, Foo>() {
  *   public Foo apply(Foo foo) {
  *     return new ForwardingFoo(foo);
  *   }
  * });
- * }</pre>
+ * }
  *
  * @author Ben Yu
  * @since 14.0
  */
 @GwtIncompatible
 @J2ktIncompatible
-@ElementTypesAreNonnullByDefault
+@NullMarked
 public final class ForwardingWrapperTester {
 
   private boolean testsEquals = false;

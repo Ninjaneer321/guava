@@ -28,6 +28,7 @@ import com.google.common.math.LongMath;
 import com.google.common.primitives.SignedBytes;
 import com.google.common.primitives.UnsignedBytes;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import com.google.errorprone.annotations.InlineMe;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -38,8 +39,7 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.math.RoundingMode;
 import java.util.stream.Collector;
-import javax.annotation.CheckForNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A Bloom filter for instances of {@code T}. A Bloom filter offers an approximate containment test
@@ -69,7 +69,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @since 11.0 (thread-safe since 23.0)
  */
 @Beta
-@ElementTypesAreNonnullByDefault
 public final class BloomFilter<T extends @Nullable Object> implements Predicate<T>, Serializable {
   /**
    * A strategy to translate T instances, to {@code numHashFunctions} bit indexes.
@@ -121,6 +120,12 @@ public final class BloomFilter<T extends @Nullable Object> implements Predicate<
   /** The strategy we employ to map an element T to {@code numHashFunctions} bit indexes. */
   private final Strategy strategy;
 
+  /** Natural logarithm of 2, used to optimize calculations in Bloom filter sizing. */
+  private static final double LOG_TWO = Math.log(2);
+
+  /** Square of the natural logarithm of 2, reused to optimize the bit size calculation. */
+  private static final double SQUARED_LOG_TWO = LOG_TWO * LOG_TWO;
+
   /** Creates a BloomFilter. */
   private BloomFilter(
       LockFreeBitArray bits, int numHashFunctions, Funnel<? super T> funnel, Strategy strategy) {
@@ -155,9 +160,22 @@ public final class BloomFilter<T extends @Nullable Object> implements Predicate<
    * @deprecated Provided only to satisfy the {@link Predicate} interface; use {@link #mightContain}
    *     instead.
    */
+  @InlineMe(replacement = "this.mightContain(input)")
   @Deprecated
   @Override
   public boolean apply(@ParametricNullness T input) {
+    return mightContain(input);
+  }
+
+  /**
+   * @deprecated Provided only to satisfy the {@link java.util.function.Predicate} interface; use
+   *     {@link #mightContain} instead.
+   * @since 21.0
+   */
+  @InlineMe(replacement = "this.mightContain(input)")
+  @Deprecated
+  @Override
+  public boolean test(@ParametricNullness T input) {
     return mightContain(input);
   }
 
@@ -203,7 +221,7 @@ public final class BloomFilter<T extends @Nullable Object> implements Predicate<
     long bitSize = bits.bitSize();
     long bitCount = bits.bitCount();
 
-    /**
+    /*
      * Each insertion is expected to reduce the # of clear bits by a factor of
      * `numHashFunctions/bitSize`. So, after n insertions, expected bitCount is `bitSize * (1 - (1 -
      * numHashFunctions/bitSize)^n)`. Solving that for n, and approximating `ln x` as `x - 1` when x
@@ -280,7 +298,7 @@ public final class BloomFilter<T extends @Nullable Object> implements Predicate<
   }
 
   @Override
-  public boolean equals(@CheckForNull Object object) {
+  public boolean equals(@Nullable Object object) {
     if (object == this) {
       return true;
     }
@@ -435,7 +453,7 @@ public final class BloomFilter<T extends @Nullable Object> implements Predicate<
      * optimalM(1000, 0.0000000000000001) = 76680 which is less than 10kb. Who cares!
      */
     long numBits = optimalNumOfBits(expectedInsertions, fpp);
-    int numHashFunctions = optimalNumOfHashFunctions(expectedInsertions, numBits);
+    int numHashFunctions = optimalNumOfHashFunctions(fpp);
     try {
       return new BloomFilter<>(new LockFreeBitArray(numBits), numHashFunctions, funnel, strategy);
     } catch (IllegalArgumentException e) {
@@ -505,18 +523,16 @@ public final class BloomFilter<T extends @Nullable Object> implements Predicate<
   // 4) For optimal k: m = -nlnp / ((ln2) ^ 2)
 
   /**
-   * Computes the optimal k (number of hashes per element inserted in Bloom filter), given the
-   * expected insertions and total number of bits in the Bloom filter.
+   * Computes the optimal number of hash functions (k) for a given false positive probability (p).
    *
    * <p>See http://en.wikipedia.org/wiki/File:Bloom_filter_fp_probability.svg for the formula.
    *
-   * @param n expected insertions (must be positive)
-   * @param m total number of bits in Bloom filter (must be positive)
+   * @param p desired false positive probability (must be between 0 and 1, exclusive)
    */
   @VisibleForTesting
-  static int optimalNumOfHashFunctions(long n, long m) {
-    // (m / n) * log(2), but avoid truncation due to division!
-    return max(1, (int) Math.round((double) m / n * Math.log(2)));
+  static int optimalNumOfHashFunctions(double p) {
+    // -log(p) / log(2), ensuring the result is rounded to avoid truncation.
+    return max(1, (int) Math.round(-Math.log(p) / LOG_TWO));
   }
 
   /**
@@ -534,7 +550,7 @@ public final class BloomFilter<T extends @Nullable Object> implements Predicate<
     if (p == 0) {
       p = Double.MIN_VALUE;
     }
-    return (long) (-n * Math.log(p) / (Math.log(2) * Math.log(2)));
+    return (long) (-n * Math.log(p) / SQUARED_LOG_TWO);
   }
 
   private Object writeReplace() {
@@ -615,6 +631,11 @@ public final class BloomFilter<T extends @Nullable Object> implements Predicate<
       numHashFunctions = UnsignedBytes.toInt(din.readByte());
       dataLength = din.readInt();
 
+      /*
+       * We document in BloomFilterStrategies that we must not change the ordering, and we have a
+       * test that verifies that we don't do so.
+       */
+      @SuppressWarnings("EnumOrdinal")
       Strategy strategy = BloomFilterStrategies.values()[strategyOrdinal];
 
       LockFreeBitArray dataArray = new LockFreeBitArray(LongMath.checkedMultiply(dataLength, 64L));

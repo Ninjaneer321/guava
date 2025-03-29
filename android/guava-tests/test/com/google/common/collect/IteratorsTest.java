@@ -74,7 +74,8 @@ import junit.framework.AssertionFailedError;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Unit test for {@code Iterators}.
@@ -82,11 +83,12 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @author Kevin Bourrillion
  */
 @GwtCompatible(emulated = true)
-@ElementTypesAreNonnullByDefault
+@NullMarked
 public class IteratorsTest extends TestCase {
 
   @J2ktIncompatible
   @GwtIncompatible // suite
+  @AndroidIncompatible // test-suite builders
   public static Test suite() {
     TestSuite suite = new TestSuite(IteratorsTest.class.getSimpleName());
     suite.addTest(testsForRemoveAllAndRetainAll());
@@ -468,7 +470,7 @@ public class IteratorsTest extends TestCase {
   }
 
   public void testNullFriendlyTransform() {
-    Iterator<Integer> input = asList(1, 2, null, 3).iterator();
+    Iterator<@Nullable Integer> input = Arrays.<@Nullable Integer>asList(1, 2, null, 3).iterator();
     Iterator<String> result =
         Iterators.transform(
             input,
@@ -1156,6 +1158,8 @@ public class IteratorsTest extends TestCase {
     assertFalse(enumer.hasMoreElements());
   }
 
+  // We're testing our asEnumeration method against a known-good implementation.
+  @SuppressWarnings("JdkObsolete")
   private static Enumeration<Integer> enumerate(int... ints) {
     Vector<Integer> vector = new Vector<>(Ints.asList(ints));
     return vector.elements();
@@ -1435,6 +1439,7 @@ public class IteratorsTest extends TestCase {
 
   @J2ktIncompatible
   @GwtIncompatible // ListTestSuiteBuilder
+  @AndroidIncompatible // test-suite builders
   private static Test testsForRemoveAllAndRetainAll() {
     return ListTestSuiteBuilder.using(
             new TestStringListGenerator() {
@@ -1523,7 +1528,7 @@ public class IteratorsTest extends TestCase {
     assertFalse(iterator.hasNext());
   }
 
-  @SuppressWarnings("deprecation")
+  @SuppressWarnings({"deprecation", "InlineMeInliner"}) // test of a deprecated method
   public void testUnmodifiableIteratorShortCircuit() {
     Iterator<String> mod = Lists.newArrayList("a", "b", "c").iterator();
     UnmodifiableIterator<String> unmod = Iterators.unmodifiableIterator(mod);
@@ -1532,7 +1537,7 @@ public class IteratorsTest extends TestCase {
     assertSame(unmod, Iterators.unmodifiableIterator((Iterator<String>) unmod));
   }
 
-  @SuppressWarnings("deprecation")
+  @SuppressWarnings({"deprecation", "InlineMeInliner"}) // test of a deprecated method
   public void testPeekingIteratorShortCircuit() {
     Iterator<String> nonpeek = Lists.newArrayList("a", "b", "c").iterator();
     PeekingIterator<String> peek = Iterators.peekingIterator(nonpeek);

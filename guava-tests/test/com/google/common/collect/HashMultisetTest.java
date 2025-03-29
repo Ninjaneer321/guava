@@ -31,6 +31,7 @@ import java.io.Serializable;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import org.jspecify.annotations.NullMarked;
 
 /**
  * Unit test for {@link HashMultiset}.
@@ -39,11 +40,12 @@ import junit.framework.TestSuite;
  * @author Jared Levy
  */
 @GwtCompatible(emulated = true)
-@ElementTypesAreNonnullByDefault
+@NullMarked
 public class HashMultisetTest extends TestCase {
 
   @J2ktIncompatible
   @GwtIncompatible // suite
+  @AndroidIncompatible // test-suite builders
   public static Test suite() {
     TestSuite suite = new TestSuite();
     suite.addTest(
@@ -61,6 +63,8 @@ public class HashMultisetTest extends TestCase {
     return suite;
   }
 
+  @J2ktIncompatible
+  @AndroidIncompatible // test-suite builders
   private static TestStringMultisetGenerator hashMultisetGenerator() {
     return new TestStringMultisetGenerator() {
       @Override
@@ -111,7 +115,7 @@ public class HashMultisetTest extends TestCase {
       this.member = multiset;
     }
 
-    private static final long serialVersionUID = 1L;
+    @GwtIncompatible @J2ktIncompatible private static final long serialVersionUID = 1L;
   }
 
   @J2ktIncompatible

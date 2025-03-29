@@ -36,6 +36,7 @@ import com.google.common.cache.TestingRemovalListeners.QueuingRemovalListener;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.testing.NullPointerTester;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.time.Duration;
 import java.util.Map;
 import java.util.Random;
@@ -47,11 +48,13 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import junit.framework.TestCase;
+import org.jspecify.annotations.NullUnmarked;
 
 /** Unit tests for CacheBuilder. */
 @GwtCompatible(emulated = true)
 // We are intentionally testing the TimeUnit overloads, too.
 @SuppressWarnings("LongTimeUnit_ExpireAfterWrite_Seconds")
+@NullUnmarked
 public class CacheBuilderTest extends TestCase {
 
   public void testNewBuilder() {
@@ -604,6 +607,7 @@ public class CacheBuilderTest extends TestCase {
       this.delayLatch = delayLatch;
     }
 
+    @CanIgnoreReturnValue // Sure, why not?
     @Override
     public T load(T key) throws InterruptedException {
       if (shouldWait.get()) {

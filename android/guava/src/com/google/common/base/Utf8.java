@@ -36,7 +36,6 @@ import com.google.common.annotations.GwtCompatible;
  * @since 16.0
  */
 @GwtCompatible(emulated = true)
-@ElementTypesAreNonnullByDefault
 public final class Utf8 {
   /**
    * Returns the number of bytes in the UTF-8-encoded form of {@code sequence}. For a string, this
@@ -165,7 +164,7 @@ public final class Utf8 {
             // Overlong? 5 most significant bits must not all be zero.
             || (byte1 == (byte) 0xE0 && byte2 < (byte) 0xA0)
             // Check for illegal surrogate codepoints.
-            || (byte1 == (byte) 0xED && (byte) 0xA0 <= byte2)
+            || (byte1 == (byte) 0xED && byte2 >= (byte) 0xA0)
             // Third byte trailing-byte test.
             || bytes[index++] > (byte) 0xBF) {
           return false;

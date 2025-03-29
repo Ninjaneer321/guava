@@ -70,7 +70,8 @@ import java.util.stream.Stream;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Tests for {@link ImmutableMap}.
@@ -80,11 +81,12 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  */
 @GwtCompatible(emulated = true)
 @SuppressWarnings("AlwaysThrows")
-@ElementTypesAreNonnullByDefault
+@NullMarked
 public class ImmutableMapTest extends TestCase {
 
   @J2ktIncompatible
   @GwtIncompatible // suite
+  @AndroidIncompatible // test-suite builders
   public static Test suite() {
     TestSuite suite = new TestSuite();
     suite.addTestSuite(ImmutableMapTest.class);
@@ -582,9 +584,9 @@ public class ImmutableMapTest extends TestCase {
     // being true.
     Pattern pattern = Pattern.compile("Multiple entries with same key: four=(.*) and four=(.*)");
     assertThat(expected).hasMessageThat().matches(pattern);
-      Matcher matcher = pattern.matcher(expected.getMessage());
-      assertThat(matcher.matches()).isTrue();
-      assertThat(matcher.group(1)).isNotEqualTo(matcher.group(2));
+    Matcher matcher = pattern.matcher(expected.getMessage());
+    assertThat(matcher.matches()).isTrue();
+    assertThat(matcher.group(1)).isNotEqualTo(matcher.group(2));
   }
 
   public void testOf() {
@@ -886,7 +888,7 @@ public class ImmutableMapTest extends TestCase {
       return value;
     }
 
-    private static final long serialVersionUID = 5;
+    @GwtIncompatible @J2ktIncompatible private static final long serialVersionUID = 5;
   }
 
   public void testMutableValues() {

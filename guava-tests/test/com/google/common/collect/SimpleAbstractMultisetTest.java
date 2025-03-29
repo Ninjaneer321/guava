@@ -33,7 +33,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Unit test for {@link AbstractMultiset}.
@@ -43,10 +44,11 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  */
 @SuppressWarnings("serial") // No serialization is used in this test
 @GwtCompatible(emulated = true)
-@ElementTypesAreNonnullByDefault
+@NullMarked
 public class SimpleAbstractMultisetTest extends TestCase {
   @J2ktIncompatible
   @GwtIncompatible // suite
+  @AndroidIncompatible // test-suite builders
   public static Test suite() {
     TestSuite suite = new TestSuite();
     suite.addTestSuite(SimpleAbstractMultisetTest.class);
@@ -120,10 +122,7 @@ public class SimpleAbstractMultisetTest extends TestCase {
     @Override
     public int add(E element, int occurrences) {
       checkArgument(occurrences >= 0);
-      Integer frequency = backingMap.get(element);
-      if (frequency == null) {
-        frequency = 0;
-      }
+      Integer frequency = backingMap.getOrDefault(element, 0);
       if (occurrences == 0) {
         return frequency;
       }

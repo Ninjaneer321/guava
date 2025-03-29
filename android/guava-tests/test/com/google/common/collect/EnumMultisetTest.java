@@ -38,6 +38,7 @@ import java.util.Set;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Tests for an {@link EnumMultiset}.
@@ -46,10 +47,12 @@ import junit.framework.TestSuite;
  */
 @GwtCompatible(emulated = true)
 @J2ktIncompatible // EnumMultiset
+@NullUnmarked
 public class EnumMultisetTest extends TestCase {
 
   @J2ktIncompatible
   @GwtIncompatible // suite
+  @AndroidIncompatible // test-suite builders
   public static Test suite() {
     TestSuite suite = new TestSuite();
     suite.addTest(
@@ -67,6 +70,7 @@ public class EnumMultisetTest extends TestCase {
     return suite;
   }
 
+  @AndroidIncompatible // test-suite builders
   private static TestEnumMultisetGenerator enumMultisetGenerator() {
     return new TestEnumMultisetGenerator() {
       @Override

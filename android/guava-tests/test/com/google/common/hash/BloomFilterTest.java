@@ -38,13 +38,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import junit.framework.TestCase;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Tests for SimpleGenericBloomFilter and derived BloomFilter views.
  *
  * @author Dimitris Andreou
  */
+@NullUnmarked
 public class BloomFilterTest extends TestCase {
   private static final int NUM_PUTS = 100_000;
   private static final ThreadLocal<Random> random =
@@ -255,15 +257,15 @@ public class BloomFilterTest extends TestCase {
   /** Tests that we never get an optimal hashes number of zero. */
   public void testOptimalHashes() {
     for (int n = 1; n < 1000; n++) {
-      for (int m = 0; m < 1000; m++) {
-        assertTrue(BloomFilter.optimalNumOfHashFunctions(n, m) > 0);
+      for (double p = 0.1; p > 1e-10; p /= 10) {
+        assertThat(BloomFilter.optimalNumOfHashFunctions(p)).isGreaterThan(0);
       }
     }
   }
 
   // https://github.com/google/guava/issues/1781
   public void testOptimalNumOfHashFunctionsRounding() {
-    assertEquals(7, BloomFilter.optimalNumOfHashFunctions(319, 3072));
+    assertEquals(5, BloomFilter.optimalNumOfHashFunctions(0.03));
   }
 
   /** Tests that we always get a non-negative optimal size. */
@@ -302,6 +304,7 @@ public class BloomFilterTest extends TestCase {
     unused = BloomFilter.create(Funnels.unencodedCharsFunnel(), 45L * Integer.MAX_VALUE, 0.99);
   }
 
+  @SuppressWarnings({"deprecation", "InlineMeInliner"}) // test of a deprecated method
   private static void checkSanity(BloomFilter<Object> bf) {
     assertFalse(bf.mightContain(new Object()));
     assertFalse(bf.apply(new Object()));
@@ -510,6 +513,8 @@ public class BloomFilterTest extends TestCase {
    * This test will fail whenever someone updates/reorders the BloomFilterStrategies constants. Only
    * appending a new constant is allowed.
    */
+  // This test ensures that our reliance on the ordering elsewhere is safe.
+  @SuppressWarnings("EnumOrdinal")
   public void testBloomFilterStrategies() {
     assertThat(BloomFilterStrategies.values()).hasLength(2);
     assertEquals(BloomFilterStrategies.MURMUR128_MITZ_32, BloomFilterStrategies.values()[0]);

@@ -34,18 +34,18 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * An immutable builder for {@link Multimap} instances, letting you independently select the desired
  * behaviors (for example, ordering) of the backing map and value-collections. Example:
  *
- * <pre>{@code
+ * {@snippet :
  * ListMultimap<UserId, ErrorResponse> errorsByUser =
  *     MultimapBuilder.linkedHashKeys().arrayListValues().build();
  * SortedSetMultimap<String, Method> methodsForName =
  *     MultimapBuilder.treeKeys().treeSetValues(this::compareMethods).build();
- * }</pre>
+ * }
  *
  * <p>{@code MultimapBuilder} instances are immutable. Invoking a configuration method has no effect
  * on the receiving instance; you must store and use the new builder instance it returns instead.
@@ -59,7 +59,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @since 16.0
  */
 @GwtCompatible
-@ElementTypesAreNonnullByDefault
 public abstract class MultimapBuilder<K0 extends @Nullable Object, V0 extends @Nullable Object> {
   /*
    * Leaving K and V as upper bounds rather than the actual key and value types allows type
@@ -204,6 +203,8 @@ public abstract class MultimapBuilder<K0 extends @Nullable Object, V0 extends @N
     }
 
     @Override
+    // We recommend against linkedListValues but need to keep it for compatibility.
+    @SuppressWarnings("JdkObsolete")
     public List<?> get() {
       return new LinkedList<>();
     }
@@ -303,7 +304,15 @@ public abstract class MultimapBuilder<K0 extends @Nullable Object, V0 extends @N
       };
     }
 
-    /** Uses a {@link LinkedList} to store value collections. */
+    /**
+     * Uses a {@link LinkedList} to store value collections.
+     *
+     * <p><b>Performance note:</b> {@link ArrayList} and {@link java.util.ArrayDeque} consistently
+     * outperform {@code LinkedList} except in certain rare and specific situations. Unless you have
+     * spent a lot of time benchmarking your specific needs, use one of those instead. (However, we
+     * do not currently offer a {@link Multimap} implementation based on {@link
+     * java.util.ArrayDeque}.)
+     */
     public ListMultimapBuilder<K0, @Nullable Object> linkedListValues() {
       return new ListMultimapBuilder<K0, @Nullable Object>() {
         @Override

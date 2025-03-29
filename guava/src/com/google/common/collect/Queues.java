@@ -35,7 +35,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.TimeUnit;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Static utility methods pertaining to {@link Queue} and {@link Deque} instances. Also see this
@@ -45,7 +45,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @since 11.0
  */
 @GwtCompatible(emulated = true)
-@ElementTypesAreNonnullByDefault
 public final class Queues {
   private Queues() {}
 
@@ -433,7 +432,7 @@ public final class Queues {
    * <p>It is imperative that the user manually synchronize on the returned queue when accessing the
    * queue's iterator:
    *
-   * <pre>{@code
+   * {@snippet :
    * Queue<E> queue = Queues.synchronizedQueue(MinMaxPriorityQueue.<E>create());
    * ...
    * queue.add(element);  // Needn't be in synchronized block
@@ -444,7 +443,7 @@ public final class Queues {
    *     foo(i.next());
    *   }
    * }
-   * }</pre>
+   * }
    *
    * <p>Failure to follow this advice may result in non-deterministic behavior.
    *
@@ -467,7 +466,7 @@ public final class Queues {
    * <p>It is imperative that the user manually synchronize on the returned deque when accessing any
    * of the deque's iterators:
    *
-   * <pre>{@code
+   * {@snippet :
    * Deque<E> deque = Queues.synchronizedDeque(Queues.<E>newArrayDeque());
    * ...
    * deque.add(element);  // Needn't be in synchronized block
@@ -478,7 +477,7 @@ public final class Queues {
    *     foo(i.next());
    *   }
    * }
-   * }</pre>
+   * }
    *
    * <p>Failure to follow this advice may result in non-deterministic behavior.
    *

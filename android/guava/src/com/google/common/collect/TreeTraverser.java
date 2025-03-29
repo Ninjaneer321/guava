@@ -26,7 +26,7 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.Queue;
-import javax.annotation.CheckForNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Views elements of a type {@code T} as nodes in a tree, and provides methods to traverse the trees
@@ -34,7 +34,7 @@ import javax.annotation.CheckForNull;
  *
  * <p>For example, the tree
  *
- * <pre>{@code
+ * {@snippet :
  *        h
  *      / | \
  *     /  e  \
@@ -42,7 +42,7 @@ import javax.annotation.CheckForNull;
  *   /|\      |
  *  / | \     f
  * a  b  c
- * }</pre>
+ * }
  *
  * <p>can be iterated over in preorder (hdabcegf), postorder (abcdefgh), or breadth-first order
  * (hdegabcf).
@@ -52,16 +52,16 @@ import javax.annotation.CheckForNull;
  * <p>Because this is an abstract class, not an interface, you can't use a lambda expression to
  * implement it:
  *
- * <pre>{@code
+ * {@snippet :
  * // won't work
  * TreeTraverser<NodeType> traverser = node -> node.getChildNodes();
- * }</pre>
+ * }
  *
  * Instead, you can pass a lambda expression to the {@code using} factory method:
  *
- * <pre>{@code
+ * {@snippet :
  * TreeTraverser<NodeType> traverser = TreeTraverser.using(node -> node.getChildNodes());
- * }</pre>
+ * }
  *
  * @author Louis Wasserman
  * @since 15.0
@@ -75,7 +75,6 @@ import javax.annotation.CheckForNull;
 @Deprecated
 @Beta
 @GwtCompatible
-@ElementTypesAreNonnullByDefault
 public abstract class TreeTraverser<T> {
   /** Constructor for use by subclasses. */
   public TreeTraverser() {}
@@ -92,7 +91,7 @@ public abstract class TreeTraverser<T> {
    */
   @Deprecated
   public static <T> TreeTraverser<T> using(
-      final Function<T, ? extends Iterable<T>> nodeToChildrenFunction) {
+      Function<T, ? extends Iterable<T>> nodeToChildrenFunction) {
     checkNotNull(nodeToChildrenFunction);
     return new TreeTraverser<T>() {
       @Override
@@ -116,7 +115,7 @@ public abstract class TreeTraverser<T> {
    *     the same behavior.
    */
   @Deprecated
-  public final FluentIterable<T> preOrderTraversal(final T root) {
+  public final FluentIterable<T> preOrderTraversal(T root) {
     checkNotNull(root);
     return new FluentIterable<T>() {
       @Override
@@ -169,7 +168,7 @@ public abstract class TreeTraverser<T> {
    *     has the same behavior.
    */
   @Deprecated
-  public final FluentIterable<T> postOrderTraversal(final T root) {
+  public final FluentIterable<T> postOrderTraversal(T root) {
     checkNotNull(root);
     return new FluentIterable<T>() {
       @Override
@@ -202,8 +201,7 @@ public abstract class TreeTraverser<T> {
     }
 
     @Override
-    @CheckForNull
-    protected T computeNext() {
+    protected @Nullable T computeNext() {
       while (!stack.isEmpty()) {
         PostOrderNode<T> top = stack.getLast();
         if (top.childIterator.hasNext()) {
@@ -233,7 +231,7 @@ public abstract class TreeTraverser<T> {
    *     same behavior.
    */
   @Deprecated
-  public final FluentIterable<T> breadthFirstTraversal(final T root) {
+  public final FluentIterable<T> breadthFirstTraversal(T root) {
     checkNotNull(root);
     return new FluentIterable<T>() {
       @Override

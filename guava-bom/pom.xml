@@ -8,9 +8,9 @@
 
   <groupId>com.google.guava</groupId>
   <artifactId>guava-bom</artifactId>
-  <version>HEAD-jre-SNAPSHOT</version>
+  <version>999.0.0-HEAD-jre-SNAPSHOT</version>
   <packaging>pom</packaging>
-  
+
   <parent>
     <groupId>org.sonatype.oss</groupId>
     <artifactId>oss-parent</artifactId>

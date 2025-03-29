@@ -24,6 +24,7 @@ import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Tests our AtomicHelper fallback strategy in AggregateFutureState.
@@ -45,6 +46,7 @@ import junit.framework.TestSuite;
  * test methods in these degenerate classloaders.
  */
 
+@NullUnmarked
 public class AggregateFutureStateFallbackAtomicHelperTest extends TestCase {
 
   /**
@@ -66,7 +68,13 @@ public class AggregateFutureStateFallbackAtomicHelperTest extends TestCase {
     // corresponding method on FuturesTest in the correct classloader.
     TestSuite suite = new TestSuite(AggregateFutureStateFallbackAtomicHelperTest.class.getName());
     for (Method method : FuturesTest.class.getDeclaredMethods()) {
-      if (Modifier.isPublic(method.getModifiers()) && method.getName().startsWith("test")) {
+      if (Modifier.isPublic(method.getModifiers())
+          && method.getName().startsWith("test")
+          /*
+           * When we block access to AtomicReferenceFieldUpdater, we can't even reflect on
+           * AbstractFuture, since it declares methods that use that type in their signatures.
+           */
+          && !method.getName().equals("testFutures_nullChecks")) {
         suite.addTest(
             TestSuite.createTest(
                 AggregateFutureStateFallbackAtomicHelperTest.class, method.getName()));
@@ -104,8 +112,9 @@ public class AggregateFutureStateFallbackAtomicHelperTest extends TestCase {
   private void checkHelperVersion(ClassLoader classLoader, String expectedHelperClassName)
       throws Exception {
     // Make sure we are actually running with the expected helper implementation
-    Class<?> abstractFutureClass = classLoader.loadClass(AggregateFutureState.class.getName());
-    Field helperField = abstractFutureClass.getDeclaredField("ATOMIC_HELPER");
+    Class<?> aggregateFutureStateClass =
+        classLoader.loadClass(AggregateFutureState.class.getName());
+    Field helperField = aggregateFutureStateClass.getDeclaredField("ATOMIC_HELPER");
     helperField.setAccessible(true);
     assertEquals(expectedHelperClassName, helperField.get(null).getClass().getSimpleName());
   }

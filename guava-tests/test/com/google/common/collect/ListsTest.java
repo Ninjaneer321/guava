@@ -61,6 +61,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import org.jspecify.annotations.NullMarked;
 
 /**
  * Unit test for {@code Lists}.
@@ -70,7 +71,7 @@ import junit.framework.TestSuite;
  * @author Jared Levy
  */
 @GwtCompatible(emulated = true)
-@ElementTypesAreNonnullByDefault
+@NullMarked
 public class ListsTest extends TestCase {
 
   private static final Collection<Integer> SOME_COLLECTION = asList(0, 1, 1);
@@ -90,7 +91,7 @@ public class ListsTest extends TestCase {
       return SOME_COLLECTION.iterator();
     }
 
-    private static final long serialVersionUID = 0;
+    @GwtIncompatible @J2ktIncompatible private static final long serialVersionUID = 0;
   }
 
   private static final List<Integer> SOME_LIST = Lists.newArrayList(1, 2, 3, 4);
@@ -107,11 +108,12 @@ public class ListsTest extends TestCase {
       return String.valueOf(n);
     }
 
-    private static final long serialVersionUID = 0;
+    @GwtIncompatible @J2ktIncompatible private static final long serialVersionUID = 0;
   }
 
   @J2ktIncompatible
   @GwtIncompatible // suite
+  @AndroidIncompatible // test-suite builders
   public static Test suite() {
     TestSuite suite = new TestSuite();
     suite.addTestSuite(ListsTest.class);

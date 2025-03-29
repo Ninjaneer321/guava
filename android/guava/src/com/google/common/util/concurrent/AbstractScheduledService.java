@@ -40,8 +40,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
-import javax.annotation.CheckForNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Base class for services that can implement {@link #startUp} and {@link #shutDown} but while in
@@ -66,7 +65,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * <p>Here is a sketch of a service which crawls a website and uses the scheduling capabilities to
  * rate limit itself.
  *
- * <pre>{@code
+ * {@snippet :
  * class CrawlingService extends AbstractScheduledService {
  *   private Set<Uri> visited;
  *   private Queue<Uri> toCrawl;
@@ -91,7 +90,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  *     return Scheduler.newFixedRateSchedule(0, 1, TimeUnit.SECONDS);
  *   }
  * }
- * }</pre>
+ * }
  *
  * <p>This class uses the life cycle methods to read in a list of starting URIs and save the set of
  * outstanding URIs when shutting down. Also, it takes advantage of the scheduling functionality to
@@ -102,7 +101,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  */
 @GwtIncompatible
 @J2ktIncompatible
-@ElementTypesAreNonnullByDefault
 public abstract class AbstractScheduledService implements Service {
   private static final LazyLogger logger = new LazyLogger(AbstractScheduledService.class);
 
@@ -126,7 +124,7 @@ public abstract class AbstractScheduledService implements Service {
      * @param initialDelay the time to delay first execution
      * @param delay the delay between the termination of one execution and the commencement of the
      *     next
-     * @since NEXT (but since 28.0 in the JRE flavor)
+     * @since 33.4.0 (but since 28.0 in the JRE flavor)
      */
     @SuppressWarnings("Java7ApiChecker")
     @IgnoreJRERequirement // Users will use this only if they're already using Duration
@@ -145,8 +143,7 @@ public abstract class AbstractScheduledService implements Service {
      * @param unit the time unit of the initialDelay and delay parameters
      */
     @SuppressWarnings("GoodTime") // should accept a java.time.Duration
-    public static Scheduler newFixedDelaySchedule(
-        final long initialDelay, final long delay, final TimeUnit unit) {
+    public static Scheduler newFixedDelaySchedule(long initialDelay, long delay, TimeUnit unit) {
       checkNotNull(unit);
       checkArgument(delay > 0, "delay must be > 0, found %s", delay);
       return new Scheduler() {
@@ -165,7 +162,7 @@ public abstract class AbstractScheduledService implements Service {
      *
      * @param initialDelay the time to delay first execution
      * @param period the period between successive executions of the task
-     * @since NEXT (but since 28.0 in the JRE flavor)
+     * @since 33.4.0 (but since 28.0 in the JRE flavor)
      */
     @SuppressWarnings("Java7ApiChecker")
     @IgnoreJRERequirement // Users will use this only if they're already using Duration
@@ -183,8 +180,7 @@ public abstract class AbstractScheduledService implements Service {
      * @param unit the time unit of the initialDelay and period parameters
      */
     @SuppressWarnings("GoodTime") // should accept a java.time.Duration
-    public static Scheduler newFixedRateSchedule(
-        final long initialDelay, final long period, final TimeUnit unit) {
+    public static Scheduler newFixedRateSchedule(long initialDelay, long period, TimeUnit unit) {
       checkNotNull(unit);
       checkArgument(period > 0, "period must be > 0, found %s", period);
       return new Scheduler() {
@@ -212,8 +208,8 @@ public abstract class AbstractScheduledService implements Service {
 
     // A handle to the running task so that we can stop it when a shutdown has been requested.
     // These two fields are volatile because their values will be accessed from multiple threads.
-    @CheckForNull private volatile Cancellable runningTask;
-    @CheckForNull private volatile ScheduledExecutorService executorService;
+    private volatile @Nullable Cancellable runningTask;
+    private volatile @Nullable ScheduledExecutorService executorService;
 
     // This lock protects the task so we can ensure that none of the template methods (startUp,
     // shutDown or runOneIteration) run concurrently with one another.
@@ -378,7 +374,7 @@ public abstract class AbstractScheduledService implements Service {
         return MoreExecutors.newThread(serviceName(), runnable);
       }
     }
-    final ScheduledExecutorService executor =
+    ScheduledExecutorService executor =
         Executors.newSingleThreadScheduledExecutor(new ThreadFactoryImpl());
     // Add a listener to shut down the executor after the service is stopped. This ensures that the
     // JVM shutdown will not be prevented from exiting after this service has stopped or failed.
@@ -426,19 +422,25 @@ public abstract class AbstractScheduledService implements Service {
     return delegate.state();
   }
 
-  /** @since 13.0 */
+  /**
+   * @since 13.0
+   */
   @Override
   public final void addListener(Listener listener, Executor executor) {
     delegate.addListener(listener, executor);
   }
 
-  /** @since 14.0 */
+  /**
+   * @since 14.0
+   */
   @Override
   public final Throwable failureCause() {
     return delegate.failureCause();
   }
 
-  /** @since 15.0 */
+  /**
+   * @since 15.0
+   */
   @CanIgnoreReturnValue
   @Override
   public final Service startAsync() {
@@ -446,7 +448,9 @@ public abstract class AbstractScheduledService implements Service {
     return this;
   }
 
-  /** @since 15.0 */
+  /**
+   * @since 15.0
+   */
   @CanIgnoreReturnValue
   @Override
   public final Service stopAsync() {
@@ -454,25 +458,33 @@ public abstract class AbstractScheduledService implements Service {
     return this;
   }
 
-  /** @since 15.0 */
+  /**
+   * @since 15.0
+   */
   @Override
   public final void awaitRunning() {
     delegate.awaitRunning();
   }
 
-  /** @since 15.0 */
+  /**
+   * @since 15.0
+   */
   @Override
   public final void awaitRunning(long timeout, TimeUnit unit) throws TimeoutException {
     delegate.awaitRunning(timeout, unit);
   }
 
-  /** @since 15.0 */
+  /**
+   * @since 15.0
+   */
   @Override
   public final void awaitTerminated() {
     delegate.awaitTerminated();
   }
 
-  /** @since 15.0 */
+  /**
+   * @since 15.0
+   */
   @Override
   public final void awaitTerminated(long timeout, TimeUnit unit) throws TimeoutException {
     delegate.awaitTerminated(timeout, unit);
@@ -560,8 +572,7 @@ public abstract class AbstractScheduledService implements Service {
 
       /** The future that represents the next execution of this task. */
       @GuardedBy("lock")
-      @CheckForNull
-      private SupplantableFuture cancellationDelegate;
+      private @Nullable SupplantableFuture cancellationDelegate;
 
       ReschedulableCallable(
           AbstractService service, ScheduledExecutorService executor, Runnable runnable) {
@@ -571,8 +582,7 @@ public abstract class AbstractScheduledService implements Service {
       }
 
       @Override
-      @CheckForNull
-      public Void call() throws Exception {
+      public @Nullable Void call() throws Exception {
         wrappedRunnable.run();
         reschedule();
         return null;
@@ -724,7 +734,7 @@ public abstract class AbstractScheduledService implements Service {
 
       /**
        * @param delay the time from now to delay execution
-       * @since NEXT (but since 31.1 in the JRE flavor)
+       * @since 33.4.0 (but since 31.1 in the JRE flavor)
        */
       @SuppressWarnings("Java7ApiChecker")
       @IgnoreJRERequirement // Users will use this only if they're already using Duration

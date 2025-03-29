@@ -51,8 +51,7 @@ import java.util.NoSuchElementException;
 import java.util.RandomAccess;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Predicate;
-import javax.annotation.CheckForNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Static utility methods pertaining to {@link List} instances. Also see this class's counterparts
@@ -67,7 +66,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @since 2.0
  */
 @GwtCompatible(emulated = true)
-@ElementTypesAreNonnullByDefault
 public final class Lists {
   private Lists() {}
 
@@ -229,7 +227,10 @@ public final class Lists {
    * syntax</a>.
    */
   @GwtCompatible(serializable = true)
-  @SuppressWarnings("NonApiType") // acts as a direct substitute for a constructor call
+  @SuppressWarnings({
+    "NonApiType", // acts as a direct substitute for a constructor call
+    "JdkObsolete", // We recommend against this method but need to keep it for compatibility.
+  })
   public static <E extends @Nullable Object> LinkedList<E> newLinkedList() {
     return new LinkedList<>();
   }
@@ -335,7 +336,9 @@ public final class Lists {
     return new TwoPlusArrayList<>(first, second, rest);
   }
 
-  /** @see Lists#asList(Object, Object[]) */
+  /**
+   * @see Lists#asList(Object, Object[])
+   */
   private static class OnePlusArrayList<E extends @Nullable Object> extends AbstractList<E>
       implements Serializable, RandomAccess {
     @ParametricNullness final E first;
@@ -359,10 +362,12 @@ public final class Lists {
       return (index == 0) ? first : rest[index - 1];
     }
 
-    @J2ktIncompatible private static final long serialVersionUID = 0;
+    @GwtIncompatible @J2ktIncompatible private static final long serialVersionUID = 0;
   }
 
-  /** @see Lists#asList(Object, Object, Object[]) */
+  /**
+   * @see Lists#asList(Object, Object, Object[])
+   */
   private static class TwoPlusArrayList<E extends @Nullable Object> extends AbstractList<E>
       implements Serializable, RandomAccess {
     @ParametricNullness final E first;
@@ -395,7 +400,7 @@ public final class Lists {
       }
     }
 
-    @J2ktIncompatible private static final long serialVersionUID = 0;
+    @GwtIncompatible @J2ktIncompatible private static final long serialVersionUID = 0;
   }
 
   /**
@@ -403,11 +408,11 @@ public final class Lists {
    * lists in order; the "n-ary <a href="http://en.wikipedia.org/wiki/Cartesian_product">Cartesian
    * product</a>" of the lists. For example:
    *
-   * <pre>{@code
+   * {@snippet :
    * Lists.cartesianProduct(ImmutableList.of(
    *     ImmutableList.of(1, 2),
    *     ImmutableList.of("A", "B", "C")))
-   * }</pre>
+   * }
    *
    * <p>returns a list containing six lists in the following order:
    *
@@ -423,7 +428,7 @@ public final class Lists {
    * <p>The result is guaranteed to be in the "traditional", lexicographical order for Cartesian
    * products that you would get from nesting for loops:
    *
-   * <pre>{@code
+   * {@snippet :
    * for (B b0 : lists.get(0)) {
    *   for (B b1 : lists.get(1)) {
    *     ...
@@ -431,7 +436,7 @@ public final class Lists {
    *     // operate on tuple
    *   }
    * }
-   * }</pre>
+   * }
    *
    * <p>Note that if any input list is empty, the Cartesian product will also be empty. If no lists
    * at all are provided (an empty list), the resulting Cartesian product has one element, an empty
@@ -461,11 +466,11 @@ public final class Lists {
    * lists in order; the "n-ary <a href="http://en.wikipedia.org/wiki/Cartesian_product">Cartesian
    * product</a>" of the lists. For example:
    *
-   * <pre>{@code
+   * {@snippet :
    * Lists.cartesianProduct(ImmutableList.of(
    *     ImmutableList.of(1, 2),
    *     ImmutableList.of("A", "B", "C")))
-   * }</pre>
+   * }
    *
    * <p>returns a list containing six lists in the following order:
    *
@@ -481,7 +486,7 @@ public final class Lists {
    * <p>The result is guaranteed to be in the "traditional", lexicographical order for Cartesian
    * products that you would get from nesting for loops:
    *
-   * <pre>{@code
+   * {@snippet :
    * for (B b0 : lists.get(0)) {
    *   for (B b1 : lists.get(1)) {
    *     ...
@@ -489,7 +494,7 @@ public final class Lists {
    *     // operate on tuple
    *   }
    * }
-   * }</pre>
+   * }
    *
    * <p>Note that if any input list is empty, the Cartesian product will also be empty. If no lists
    * at all are provided (an empty list), the resulting Cartesian product has one element, an empty
@@ -590,7 +595,7 @@ public final class Lists {
     }
 
     @Override
-    public ListIterator<T> listIterator(final int index) {
+    public ListIterator<T> listIterator(int index) {
       return new TransformedListIterator<F, T>(fromList.listIterator(index)) {
         @Override
         @ParametricNullness
@@ -606,7 +611,7 @@ public final class Lists {
       return fromList.removeIf(element -> filter.test(function.apply(element)));
     }
 
-    private static final long serialVersionUID = 0;
+    @GwtIncompatible @J2ktIncompatible private static final long serialVersionUID = 0;
   }
 
   /**
@@ -679,7 +684,7 @@ public final class Lists {
       return fromList.size();
     }
 
-    private static final long serialVersionUID = 0;
+    @GwtIncompatible @J2ktIncompatible private static final long serialVersionUID = 0;
   }
 
   /**
@@ -772,12 +777,12 @@ public final class Lists {
     }
 
     @Override
-    public int indexOf(@CheckForNull Object object) {
+    public int indexOf(@Nullable Object object) {
       return (object instanceof Character) ? string.indexOf((Character) object) : -1;
     }
 
     @Override
-    public int lastIndexOf(@CheckForNull Object object) {
+    public int lastIndexOf(@Nullable Object object) {
       return (object instanceof Character) ? string.lastIndexOf((Character) object) : -1;
     }
 
@@ -934,7 +939,7 @@ public final class Lists {
     @Override
     public ListIterator<T> listIterator(int index) {
       int start = reversePosition(index);
-      final ListIterator<T> forwardIterator = forwardList.listIterator(start);
+      ListIterator<T> forwardIterator = forwardList.listIterator(start);
       return new ListIterator<T>() {
 
         boolean canRemoveOrSet;
@@ -1023,7 +1028,7 @@ public final class Lists {
   }
 
   /** An implementation of {@link List#equals(Object)}. */
-  static boolean equalsImpl(List<?> thisList, @CheckForNull Object other) {
+  static boolean equalsImpl(List<?> thisList, @Nullable Object other) {
     if (other == checkNotNull(thisList)) {
       return true;
     }
@@ -1061,7 +1066,7 @@ public final class Lists {
   }
 
   /** An implementation of {@link List#indexOf(Object)}. */
-  static int indexOfImpl(List<?> list, @CheckForNull Object element) {
+  static int indexOfImpl(List<?> list, @Nullable Object element) {
     if (list instanceof RandomAccess) {
       return indexOfRandomAccess(list, element);
     } else {
@@ -1075,7 +1080,7 @@ public final class Lists {
     }
   }
 
-  private static int indexOfRandomAccess(List<?> list, @CheckForNull Object element) {
+  private static int indexOfRandomAccess(List<?> list, @Nullable Object element) {
     int size = list.size();
     if (element == null) {
       for (int i = 0; i < size; i++) {
@@ -1094,7 +1099,7 @@ public final class Lists {
   }
 
   /** An implementation of {@link List#lastIndexOf(Object)}. */
-  static int lastIndexOfImpl(List<?> list, @CheckForNull Object element) {
+  static int lastIndexOfImpl(List<?> list, @Nullable Object element) {
     if (list instanceof RandomAccess) {
       return lastIndexOfRandomAccess(list, element);
     } else {
@@ -1108,7 +1113,7 @@ public final class Lists {
     }
   }
 
-  private static int lastIndexOfRandomAccess(List<?> list, @CheckForNull Object element) {
+  private static int lastIndexOfRandomAccess(List<?> list, @Nullable Object element) {
     if (element == null) {
       for (int i = list.size() - 1; i >= 0; i--) {
         if (list.get(i) == null) {
@@ -1132,7 +1137,7 @@ public final class Lists {
 
   /** An implementation of {@link List#subList(int, int)}. */
   static <E extends @Nullable Object> List<E> subListImpl(
-      final List<E> list, int fromIndex, int toIndex) {
+      List<E> list, int fromIndex, int toIndex) {
     List<E> wrapper;
     if (list instanceof RandomAccess) {
       wrapper =
@@ -1142,7 +1147,7 @@ public final class Lists {
               return backingList.listIterator(index);
             }
 
-            @J2ktIncompatible private static final long serialVersionUID = 0;
+            @GwtIncompatible @J2ktIncompatible             private static final long serialVersionUID = 0;
           };
     } else {
       wrapper =
@@ -1152,7 +1157,7 @@ public final class Lists {
               return backingList.listIterator(index);
             }
 
-            @J2ktIncompatible private static final long serialVersionUID = 0;
+            @GwtIncompatible @J2ktIncompatible             private static final long serialVersionUID = 0;
           };
     }
     return wrapper.subList(fromIndex, toIndex);
@@ -1194,7 +1199,7 @@ public final class Lists {
     }
 
     @Override
-    public boolean contains(@CheckForNull Object o) {
+    public boolean contains(@Nullable Object o) {
       return backingList.contains(o);
     }
 
@@ -1209,10 +1214,5 @@ public final class Lists {
     RandomAccessListWrapper(List<E> backingList) {
       super(backingList);
     }
-  }
-
-  /** Used to avoid http://bugs.sun.com/view_bug.do?bug_id=6558557 */
-  static <T extends @Nullable Object> List<T> cast(Iterable<T> iterable) {
-    return (List<T>) iterable;
   }
 }

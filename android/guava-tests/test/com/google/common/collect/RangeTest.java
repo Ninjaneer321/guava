@@ -27,13 +27,13 @@ import static java.util.Arrays.asList;
 
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.annotations.GwtIncompatible;
-import com.google.common.base.Predicate;
 import com.google.common.testing.EqualsTester;
 import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 import junit.framework.TestCase;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Unit test for {@link Range}.
@@ -41,7 +41,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @author Kevin Bourrillion
  */
 @GwtCompatible(emulated = true)
-@ElementTypesAreNonnullByDefault
+@NullMarked
 public class RangeTest extends TestCase {
   public void testOpen() {
     Range<Integer> range = Range.open(4, 8);
@@ -536,8 +536,10 @@ public class RangeTest extends TestCase {
     assertEquals(Range.atLeast(4), range.span(Range.atLeast(10)));
   }
 
-  public void testApply() {
-    Predicate<Integer> predicate = Range.closed(2, 3);
+  @SuppressWarnings({"InlineMeInliner", "deprecation"}) // intentional test of depecated method
+  public void testPredicateMethods() {
+    Range<Integer> predicate = Range.closed(2, 3);
+
     assertFalse(predicate.apply(1));
     assertTrue(predicate.apply(2));
     assertTrue(predicate.apply(3));

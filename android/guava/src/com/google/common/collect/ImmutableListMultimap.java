@@ -37,8 +37,7 @@ import java.util.Map.Entry;
 import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
-import javax.annotation.CheckForNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A {@link ListMultimap} whose contents will never change, with many other important properties
@@ -51,7 +50,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @since 2.0
  */
 @GwtCompatible(serializable = true, emulated = true)
-@ElementTypesAreNonnullByDefault
 public class ImmutableListMultimap<K, V> extends ImmutableMultimap<K, V>
     implements ListMultimap<K, V> {
   /**
@@ -65,7 +63,7 @@ public class ImmutableListMultimap<K, V> extends ImmutableMultimap<K, V>
    *
    * <p>Example:
    *
-   * <pre>{@code
+   * {@snippet :
    * static final Multimap<Character, String> FIRST_LETTER_MULTIMAP =
    *     Stream.of("banana", "apple", "carrot", "asparagus", "cherry")
    *         .collect(toImmutableListMultimap(str -> str.charAt(0), str -> str.substring(1)));
@@ -78,7 +76,7 @@ public class ImmutableListMultimap<K, V> extends ImmutableMultimap<K, V>
    *         .putAll('a', "pple", "sparagus")
    *         .putAll('c', "arrot", "herry")
    *         .build();
-   * }</pre>
+   * }
    *
    * @since 33.2.0 (available since 21.0 in guava-jre)
    */
@@ -99,7 +97,7 @@ public class ImmutableListMultimap<K, V> extends ImmutableMultimap<K, V>
    *
    * <p>Example:
    *
-   * <pre>{@code
+   * {@snippet :
    * static final ImmutableListMultimap<Character, Character> FIRST_LETTER_MULTIMAP =
    *     Stream.of("banana", "apple", "carrot", "asparagus", "cherry")
    *         .collect(
@@ -118,7 +116,8 @@ public class ImmutableListMultimap<K, V> extends ImmutableMultimap<K, V>
    *         .putAll('c', Arrays.asList('h', 'e', 'r', 'r', 'y'))
    *         .build();
    * }
-   * }</pre>
+   *
+   * }
    *
    * @since 33.2.0 (available since 21.0 in guava-jre)
    */
@@ -216,14 +215,14 @@ public class ImmutableListMultimap<K, V> extends ImmutableMultimap<K, V>
    * A builder for creating immutable {@code ListMultimap} instances, especially {@code public
    * static final} multimaps ("constant multimaps"). Example:
    *
-   * <pre>{@code
+   * {@snippet :
    * static final Multimap<String, Integer> STRING_TO_INTEGER_MULTIMAP =
    *     new ImmutableListMultimap.Builder<String, Integer>()
    *         .put("one", 1)
    *         .putAll("several", 1, 2, 3)
    *         .putAll("many", 1, 2, 3, 4, 5)
    *         .build();
-   * }</pre>
+   * }
    *
    * <p>Builder instances can be reused; it is safe to call {@link #build} multiple times to build
    * multiple multimaps in series. Each multimap contains the key-value mappings in the previously
@@ -390,7 +389,7 @@ public class ImmutableListMultimap<K, V> extends ImmutableMultimap<K, V>
   /** Creates an ImmutableListMultimap from an asMap.entrySet. */
   static <K, V> ImmutableListMultimap<K, V> fromMapEntries(
       Collection<? extends Map.Entry<? extends K, ? extends Collection<? extends V>>> mapEntries,
-      @CheckForNull Comparator<? super V> valueComparator) {
+      @Nullable Comparator<? super V> valueComparator) {
     if (mapEntries.isEmpty()) {
       return of();
     }
@@ -417,7 +416,7 @@ public class ImmutableListMultimap<K, V> extends ImmutableMultimap<K, V>
   /** Creates an ImmutableListMultimap from an asMap.entrySet. */
   static <K, V> ImmutableListMultimap<K, V> fromMapBuilderEntries(
       Collection<? extends Map.Entry<K, ImmutableCollection.Builder<V>>> mapEntries,
-      @CheckForNull Comparator<? super V> valueComparator) {
+      @Nullable Comparator<? super V> valueComparator) {
     if (mapEntries.isEmpty()) {
       return of();
     }
@@ -455,7 +454,7 @@ public class ImmutableListMultimap<K, V> extends ImmutableMultimap<K, V>
     return (list == null) ? ImmutableList.<V>of() : list;
   }
 
-  @LazyInit @RetainedWith @CheckForNull private transient ImmutableListMultimap<V, K> inverse;
+  @LazyInit @RetainedWith private transient @Nullable ImmutableListMultimap<V, K> inverse;
 
   /**
    * {@inheritDoc}
@@ -492,7 +491,7 @@ public class ImmutableListMultimap<K, V> extends ImmutableMultimap<K, V>
   @Deprecated
   @Override
   @DoNotCall("Always throws UnsupportedOperationException")
-  public final ImmutableList<V> removeAll(@CheckForNull Object key) {
+  public final ImmutableList<V> removeAll(@Nullable Object key) {
     throw new UnsupportedOperationException();
   }
 
@@ -558,7 +557,5 @@ public class ImmutableListMultimap<K, V> extends ImmutableMultimap<K, V>
     FieldSettersHolder.SIZE_FIELD_SETTER.set(this, tmpSize);
   }
 
-  @GwtIncompatible // Not needed in emulated source
-  @J2ktIncompatible
-  private static final long serialVersionUID = 0;
+  @GwtIncompatible @J2ktIncompatible private static final long serialVersionUID = 0;
 }

@@ -37,6 +37,7 @@ import java.util.Random;
 import java.util.Set;
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
+import org.jspecify.annotations.NullMarked;
 
 /**
  * Unit test for {@link CharMatcher}.
@@ -44,7 +45,7 @@ import junit.framework.TestCase;
  * @author Kevin Bourrillion
  */
 @GwtCompatible(emulated = true)
-@ElementTypesAreNonnullByDefault
+@NullMarked
 public class CharMatcherTest extends TestCase {
 
   @J2ktIncompatible
@@ -292,6 +293,7 @@ public class CharMatcherTest extends TestCase {
     assertEquals(0, matcher.countIn(s));
   }
 
+  @SuppressWarnings("InlineMeInliner") // String.repeat unavailable under Java 8
   private void reallyTestAllMatches(CharMatcher matcher, CharSequence s) {
     assertTrue(matcher.matches(s.charAt(0)));
     assertEquals(0, matcher.indexIn(s));
@@ -360,7 +362,11 @@ public class CharMatcherTest extends TestCase {
     reallyTestMatchThenNoMatch(matcher.precomputed().negate(), s);
   }
 
-  @SuppressWarnings("deprecation") // intentionally testing apply() method
+  // intentionally testing apply() method
+  @SuppressWarnings({
+    "deprecation",
+    "InlineMeInliner",
+  })
   private void reallyTestOneCharMatch(CharMatcher matcher, String s) {
     assertTrue(matcher.matches(s.charAt(0)));
     assertTrue(matcher.apply(s.charAt(0)));
@@ -378,7 +384,11 @@ public class CharMatcherTest extends TestCase {
     assertEquals(1, matcher.countIn(s));
   }
 
-  @SuppressWarnings("deprecation") // intentionally testing apply() method
+  // intentionally testing apply() method
+  @SuppressWarnings({
+    "deprecation",
+    "InlineMeInliner",
+  })
   private void reallyTestOneCharNoMatch(CharMatcher matcher, String s) {
     assertFalse(matcher.matches(s.charAt(0)));
     assertFalse(matcher.apply(s.charAt(0)));

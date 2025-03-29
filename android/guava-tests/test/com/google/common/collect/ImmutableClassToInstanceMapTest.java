@@ -36,14 +36,17 @@ import java.util.Map.Entry;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Unit test for {@link ImmutableClassToInstanceMap}.
  *
  * @author Kevin Bourrillion
  */
+@NullUnmarked
 public class ImmutableClassToInstanceMapTest extends TestCase {
+  @AndroidIncompatible // test-suite builders
   public static Test suite() {
     TestSuite suite = new TestSuite();
     suite.addTestSuite(ImmutableClassToInstanceMapTest.class);

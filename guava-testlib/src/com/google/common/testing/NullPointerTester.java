@@ -18,6 +18,9 @@ package com.google.common.testing;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.Arrays.stream;
+import static java.util.Objects.requireNonNull;
+import static java.util.stream.Stream.concat;
 
 import com.google.common.annotations.GwtIncompatible;
 import com.google.common.annotations.J2ktIncompatible;
@@ -33,6 +36,7 @@ import com.google.common.reflect.Invokable;
 import com.google.common.reflect.Parameter;
 import com.google.common.reflect.Reflection;
 import com.google.common.reflect.TypeToken;
+import com.google.common.util.concurrent.AbstractFuture;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedType;
@@ -48,7 +52,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 import junit.framework.Assert;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A test utility that verifies that your methods and constructors throw {@link
@@ -69,7 +74,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  */
 @GwtIncompatible
 @J2ktIncompatible
-@ElementTypesAreNonnullByDefault
+@NullMarked
 public final class NullPointerTester {
 
   private final ClassToInstanceMap<Object> defaults = MutableClassToInstanceMap.create();
@@ -77,6 +82,12 @@ public final class NullPointerTester {
 
   private ExceptionTypePolicy policy = ExceptionTypePolicy.NPE_OR_UOE;
 
+  /*
+   * Requiring desugaring for guava-*testlib* is likely safe, at least for the reflection-based
+   * NullPointerTester. But if you are a user who is reading this because this change caused you
+   * trouble, please let us know: https://github.com/google/guava/issues/new
+   */
+  @IgnoreJRERequirement
   public NullPointerTester() {
     try {
       /*
@@ -89,8 +100,28 @@ public final class NullPointerTester {
        */
       ignoredMembers.add(Converter.class.getMethod("apply", Object.class));
     } catch (NoSuchMethodException shouldBeImpossible) {
-      // OK, fine: If it doesn't exist, then there's chance that we're going to be asked to test it.
+      // Fine: If it doesn't exist, then there's no chance that we're going to be asked to test it.
     }
+
+    /*
+     * These methods "should" call checkNotNull. However, I'm wary of accidentally introducing
+     * anything that might slow down execution on such a hot path. Given that the methods are only
+     * package-private, I feel OK with just not testing them for NPE.
+     *
+     * Note that testing casValue is particularly dangerous because it uses Unsafe under some
+     * versions of Java, and apparently Unsafe can cause SIGSEGV instead of NPE—almost as if it's
+     * not safe.
+     */
+    concat(
+            stream(AbstractFuture.class.getDeclaredMethods()),
+            stream(requireNonNull(AbstractFuture.class.getSuperclass()).getDeclaredMethods()))
+        .filter(
+            m ->
+                m.getName().equals("getDoneValue")
+                    || m.getName().equals("casValue")
+                    || m.getName().equals("casListeners")
+                    || m.getName().equals("gasListeners"))
+        .forEach(ignoredMembers::add);
   }
 
   /**
@@ -228,8 +259,7 @@ public final class NullPointerTester {
    *
    * @param instance the instance to invoke {@code method} on, or null if {@code method} is static
    */
-  public void testMethodParameter(
-      @Nullable final Object instance, final Method method, int paramIndex) {
+  public void testMethodParameter(@Nullable Object instance, Method method, int paramIndex) {
     method.setAccessible(true);
     testParameter(instance, invokable(instance, method), paramIndex, method.getDeclaringClass());
   }
@@ -446,7 +476,7 @@ public final class NullPointerTester {
   }
 
   private <F, T> Converter<F, T> defaultConverter(
-      final TypeToken<F> convertFromType, final TypeToken<T> convertToType) {
+      TypeToken<F> convertFromType, TypeToken<T> convertToType) {
     return new Converter<F, T>() {
       @Override
       protected T doForward(F a) {
@@ -472,7 +502,7 @@ public final class NullPointerTester {
     }
   }
 
-  private <T> T newDefaultReturningProxy(final TypeToken<T> type) {
+  private <T> T newDefaultReturningProxy(TypeToken<T> type) {
     return new DummyProxy() {
       @Override
       <R> @Nullable R dummyReturnValue(TypeToken<R> returnType) {
@@ -626,7 +656,7 @@ public final class NullPointerTester {
         TypeVariable<?> typeVar = (TypeVariable<?>) type;
         for (AnnotatedType bound : typeVar.getAnnotatedBounds()) {
           // Until Java 15, the isNullableTypeVariable case here won't help:
-          // https://bugs.openjdk.java.net/browse/JDK-8202469
+          // https://bugs.openjdk.org/browse/JDK-8202469
           if (containsNullable(bound.getAnnotations()) || isNullableTypeVariable(bound.getType())) {
             return true;
           }

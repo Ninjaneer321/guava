@@ -29,11 +29,11 @@ import static com.google.common.util.concurrent.Service.State.RUNNING;
 import static com.google.common.util.concurrent.Service.State.STARTING;
 import static com.google.common.util.concurrent.Service.State.STOPPING;
 import static com.google.common.util.concurrent.Service.State.TERMINATED;
+import static java.util.Collections.sort;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import com.google.common.annotations.GwtIncompatible;
 import com.google.common.annotations.J2ktIncompatible;
-import com.google.common.base.Function;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Collections2;
@@ -56,7 +56,6 @@ import com.google.j2objc.annotations.J2ObjCIncompatible;
 import com.google.j2objc.annotations.WeakOuter;
 import java.lang.ref.WeakReference;
 import java.time.Duration;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.IdentityHashMap;
 import java.util.List;
@@ -80,7 +79,7 @@ import java.util.logging.Level;
  *
  * <p>Here is a simple example of how to use a {@code ServiceManager} to start a server.
  *
- * <pre>{@code
+ * {@snippet :
  * class Server {
  *   public static void main(String[] args) {
  *     Set<Service> services = ...;
@@ -112,7 +111,7 @@ import java.util.logging.Level;
  *     manager.startAsync();  // start all the services asynchronously
  *   }
  * }
- * }</pre>
+ * }
  *
  * <p>This class uses the ServiceManager's methods to start all of its services, to respond to
  * service failure and to ensure that when the JVM is shutting down all the services are stopped.
@@ -122,7 +121,6 @@ import java.util.logging.Level;
  */
 @J2ktIncompatible
 @GwtIncompatible
-@ElementTypesAreNonnullByDefault
 public final class ServiceManager implements ServiceManagerBridge {
   private static final LazyLogger logger = new LazyLogger(ServiceManager.class);
   private static final ListenerCallQueue.Event<Listener> HEALTHY_EVENT =
@@ -310,7 +308,7 @@ public final class ServiceManager implements ServiceManagerBridge {
    * @throws TimeoutException if not all of the services have finished starting within the deadline
    * @throws IllegalStateException if the service manager reaches a state from which it cannot
    *     become {@linkplain #isHealthy() healthy}.
-   * @since NEXT (but since 28.0 in the JRE flavor)
+   * @since 33.4.0 (but since 28.0 in the JRE flavor)
    */
   @SuppressWarnings("Java7ApiChecker")
   @IgnoreJRERequirement // Users will use this only if they're already using Duration.
@@ -364,7 +362,7 @@ public final class ServiceManager implements ServiceManagerBridge {
    *
    * @param timeout the maximum time to wait
    * @throws TimeoutException if not all of the services have stopped within the deadline
-   * @since NEXT (but since 28.0 in the JRE flavor)
+   * @since 33.4.0 (but since 28.0 in the JRE flavor)
    */
   @SuppressWarnings("Java7ApiChecker")
   @IgnoreJRERequirement // Users will use this only if they're already using Duration.
@@ -431,7 +429,7 @@ public final class ServiceManager implements ServiceManagerBridge {
    *
    * @return Map of services and their corresponding startup time, the map entries will be ordered
    *     by startup time.
-   * @since NEXT (but since 31.0 in the JRE flavor)
+   * @since 33.4.0 (but since 31.0 in the JRE flavor)
    */
   @J2ObjCIncompatible
   @SuppressWarnings("Java7ApiChecker")
@@ -662,16 +660,7 @@ public final class ServiceManager implements ServiceManagerBridge {
       } finally {
         monitor.leave();
       }
-      Collections.sort(
-          loadTimes,
-          Ordering.natural()
-              .onResultOf(
-                  new Function<Entry<Service, Long>, Long>() {
-                    @Override
-                    public Long apply(Entry<Service, Long> input) {
-                      return input.getValue();
-                    }
-                  }));
+      sort(loadTimes, Ordering.natural().onResultOf(Entry::getValue));
       return ImmutableMap.copyOf(loadTimes);
     }
 
@@ -687,7 +676,7 @@ public final class ServiceManager implements ServiceManagerBridge {
      *   <li>Run the listeners (outside of the lock)
      * </ol>
      */
-    void transitionService(final Service service, State from, State to) {
+    void transitionService(Service service, State from, State to) {
       checkNotNull(service);
       checkArgument(from != to);
       monitor.enter();
@@ -750,7 +739,7 @@ public final class ServiceManager implements ServiceManagerBridge {
       listeners.enqueue(HEALTHY_EVENT);
     }
 
-    void enqueueFailedEvent(final Service service) {
+    void enqueueFailedEvent(Service service) {
       listeners.enqueue(
           new ListenerCallQueue.Event<Listener>() {
             @Override

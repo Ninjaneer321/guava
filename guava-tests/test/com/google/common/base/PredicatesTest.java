@@ -38,14 +38,15 @@ import java.util.List;
 import java.util.regex.Pattern;
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Unit test for {@link Predicates}.
  *
  * @author Kevin Bourrillion
  */
-@ElementTypesAreNonnullByDefault
+@NullMarked
 @GwtCompatible(emulated = true)
 public class PredicatesTest extends TestCase {
   private static final Predicate<@Nullable Integer> TRUE = Predicates.alwaysTrue();
@@ -60,7 +61,7 @@ public class PredicatesTest extends TestCase {
 
   /** Instantiable predicate with reasonable hashCode() and equals() methods. */
   static class IsOdd implements Predicate<@Nullable Integer>, Serializable {
-    private static final long serialVersionUID = 0x150ddL;
+    @GwtIncompatible @J2ktIncompatible     private static final long serialVersionUID = 0x150ddL;
 
     @Override
     public boolean apply(@Nullable Integer i) {
@@ -716,9 +717,8 @@ public class PredicatesTest extends TestCase {
   }
 
   public void testIn_handlesNullPointerException() {
-    class CollectionThatThrowsNPE<T> extends ArrayList<T> {
-      @J2ktIncompatible // Kotlin doesn't support companions for inner classes
-      private static final long serialVersionUID = 1L;
+    class CollectionThatThrowsNullPointerException<T> extends ArrayList<T> {
+      @GwtIncompatible @J2ktIncompatible private static final long serialVersionUID = 1L;
 
       @Override
       public boolean contains(@Nullable Object element) {
@@ -726,22 +726,21 @@ public class PredicatesTest extends TestCase {
         return super.contains(element);
       }
     }
-    Collection<Integer> nums = new CollectionThatThrowsNPE<>();
+    Collection<Integer> nums = new CollectionThatThrowsNullPointerException<>();
     Predicate<@Nullable Integer> isFalse = Predicates.in(nums);
     assertFalse(isFalse.apply(null));
   }
 
   public void testIn_handlesClassCastException() {
-    class CollectionThatThrowsCCE<T> extends ArrayList<T> {
-      @J2ktIncompatible // Kotlin doesn't support companions for inner classes
-      private static final long serialVersionUID = 1L;
+    class CollectionThatThrowsClassCastException<T> extends ArrayList<T> {
+      @GwtIncompatible @J2ktIncompatible private static final long serialVersionUID = 1L;
 
       @Override
       public boolean contains(@Nullable Object element) {
         throw new ClassCastException("");
       }
     }
-    Collection<Integer> nums = new CollectionThatThrowsCCE<>();
+    Collection<Integer> nums = new CollectionThatThrowsClassCastException<>();
     nums.add(3);
     Predicate<Integer> isThree = Predicates.in(nums);
     assertFalse(isThree.apply(3));

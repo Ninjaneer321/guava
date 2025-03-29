@@ -23,10 +23,12 @@ import com.google.common.annotations.GwtCompatible;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.Set;
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Unit tests for {@link EqualsTester}.
@@ -35,6 +37,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  */
 @GwtCompatible
 @SuppressWarnings("MissingTestCall")
+@NullUnmarked
 public class EqualsTesterTest extends TestCase {
   private ValidTestObject reference;
   private EqualsTester equalsTester;
@@ -396,6 +399,7 @@ public class EqualsTesterTest extends TestCase {
       this.name = Preconditions.checkNotNull(name);
     }
 
+    @CanIgnoreReturnValue
     NamedObject addPeers(String... names) {
       peerNames.addAll(ImmutableList.copyOf(names));
       return this;

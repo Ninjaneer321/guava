@@ -27,6 +27,7 @@ import com.google.common.collect.Lists;
 import com.google.common.testing.RelationshipTester.ItemReporter;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.List;
+import org.jspecify.annotations.NullMarked;
 
 /**
  * Tester for {@link Equivalence} relationships between groups of objects.
@@ -35,12 +36,12 @@ import java.util.List;
  * contains objects that are supposed to be equal to each other. Objects of different groups are
  * expected to be unequal. For example:
  *
- * <pre>{@code
+ * {@snippet :
  * EquivalenceTester.of(someStringEquivalence)
  *     .addEquivalenceGroup("hello", "h" + "ello")
  *     .addEquivalenceGroup("world", "wor" + "ld")
  *     .test();
- * }</pre>
+ * }
  *
  * <p>Note that testing {@link Object#equals(Object)} is more simply done using the {@link
  * EqualsTester}. It includes an extra test against an instance of an arbitrary class without having
@@ -50,7 +51,7 @@ import java.util.List;
  * @since 10.0
  */
 @GwtCompatible
-@ElementTypesAreNonnullByDefault
+@NullMarked
 public final class EquivalenceTester<T> {
   private static final int REPETITIONS = 3;
 

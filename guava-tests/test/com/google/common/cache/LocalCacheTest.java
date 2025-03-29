@@ -86,11 +86,16 @@ import java.util.logging.LogRecord;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.Nullable;
 
-/** @author Charles Fry */
+/**
+ * @author Charles Fry
+ */
 @SuppressWarnings("GuardedBy") // TODO(b/35466881): Fix or suppress.
+@NullUnmarked
 public class LocalCacheTest extends TestCase {
+  @AndroidIncompatible
   private static class TestStringCacheGenerator extends TestStringMapGenerator {
     private final CacheBuilder<? super String, ? super String> builder;
 
@@ -108,6 +113,7 @@ public class LocalCacheTest extends TestCase {
     }
   }
 
+  @AndroidIncompatible // test-suite builders
   public static Test suite() {
     TestSuite suite = new TestSuite();
     suite.addTestSuite(LocalCacheTest.class);

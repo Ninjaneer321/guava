@@ -29,10 +29,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.AbstractFutureBenchmarks.OldAbstractFuture;
 import com.google.errorprone.annotations.concurrent.GuardedBy;
-import java.lang.reflect.Field;
-import java.security.AccessController;
-import java.security.PrivilegedActionException;
-import java.security.PrivilegedExceptionAction;
 import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CountDownLatch;
@@ -42,11 +38,12 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.checkerframework.checker.nullness.qual.Nullable;
-import sun.misc.Unsafe;
+import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.Nullable;
 
 /** Benchmarks for {@link ExecutionList}. */
 @VmOptions({"-Xms8g", "-Xmx8g"})
+@NullUnmarked
 public class ExecutionListBenchmark {
   private static final int NUM_THREADS = 10; // make a param?
 
@@ -55,6 +52,7 @@ public class ExecutionListBenchmark {
     void add(Runnable runnable, Executor executor);
 
     void execute();
+
     /** Returns the underlying implementation, useful for the Footprint benchmark. */
     Object getImpl();
   }
@@ -65,29 +63,6 @@ public class ExecutionListBenchmark {
       ExecutionListWrapper newExecutionList() {
         return new ExecutionListWrapper() {
           final ExecutionList list = new ExecutionList();
-
-          @Override
-          public void add(Runnable runnable, Executor executor) {
-            list.add(runnable, executor);
-          }
-
-          @Override
-          public void execute() {
-            list.execute();
-          }
-
-          @Override
-          public Object getImpl() {
-            return list;
-          }
-        };
-      }
-    },
-    NEW_WITH_CAS {
-      @Override
-      ExecutionListWrapper newExecutionList() {
-        return new ExecutionListWrapper() {
-          final ExecutionListCAS list = new ExecutionListCAS();
 
           @Override
           public void add(Runnable runnable, Executor executor) {
@@ -573,127 +548,6 @@ public class ExecutionListBenchmark {
       RunnableExecutorPair(Runnable runnable, Executor executor) {
         this.runnable = runnable;
         this.executor = executor;
-      }
-    }
-  }
-
-  // A version of the list that uses compare and swap to manage the stack without locks.
-  @SuppressWarnings({"SunApi", "removal"}) // b/345822163
-  private static final class ExecutionListCAS {
-    static final Logger log = Logger.getLogger(ExecutionListCAS.class.getName());
-
-    private static final Unsafe UNSAFE;
-    private static final long HEAD_OFFSET;
-
-    /**
-     * A special instance of {@link RunnableExecutorPair} that is used as a sentinel value for the
-     * bottom of the stack.
-     */
-    private static final RunnableExecutorPair NULL_PAIR = new RunnableExecutorPair(null, null);
-
-    static {
-      try {
-        UNSAFE = getUnsafe();
-        HEAD_OFFSET = UNSAFE.objectFieldOffset(ExecutionListCAS.class.getDeclaredField("head"));
-      } catch (Exception ex) {
-        throw new Error(ex);
-      }
-    }
-
-    /** TODO(lukes): This was copied verbatim from Striped64.java... standardize this? */
-    private static Unsafe getUnsafe() {
-      try {
-        return Unsafe.getUnsafe();
-      } catch (SecurityException tryReflectionInstead) {
-      }
-      try {
-        return AccessController.doPrivileged(
-            new PrivilegedExceptionAction<Unsafe>() {
-              @Override
-              public Unsafe run() throws Exception {
-                Class<Unsafe> k = Unsafe.class;
-                for (Field f : k.getDeclaredFields()) {
-                  f.setAccessible(true);
-                  Object x = f.get(null);
-                  if (k.isInstance(x)) return k.cast(x);
-                }
-                throw new NoSuchFieldError("the Unsafe");
-              }
-            });
-      } catch (PrivilegedActionException e) {
-        throw new RuntimeException("Could not initialize intrinsics", e.getCause());
-      }
-    }
-
-    private volatile RunnableExecutorPair head = NULL_PAIR;
-
-    public void add(Runnable runnable, Executor executor) {
-      Preconditions.checkNotNull(runnable, "Runnable was null.");
-      Preconditions.checkNotNull(executor, "Executor was null.");
-
-      RunnableExecutorPair newHead = new RunnableExecutorPair(runnable, executor);
-      RunnableExecutorPair oldHead;
-      do {
-        oldHead = head;
-        if (oldHead == null) {
-          // If runnables == null then execute() has been called so we should just execute our
-          // listener immediately.
-          newHead.execute();
-          return;
-        }
-        // Try to make newHead the new head of the stack at runnables.
-        newHead.next = oldHead;
-      } while (!UNSAFE.compareAndSwapObject(this, HEAD_OFFSET, oldHead, newHead));
-    }
-
-    public void execute() {
-      RunnableExecutorPair stack;
-      do {
-        stack = head;
-        if (stack == null) {
-          // If head == null then execute() has been called so we should just return
-          return;
-        }
-        // try to swap null into head.
-      } while (!UNSAFE.compareAndSwapObject(this, HEAD_OFFSET, stack, null));
-
-      RunnableExecutorPair reversedStack = null;
-      while (stack != NULL_PAIR) {
-        RunnableExecutorPair head = stack;
-        stack = stack.next;
-        head.next = reversedStack;
-        reversedStack = head;
-      }
-      stack = reversedStack;
-      while (stack != null) {
-        stack.execute();
-        stack = stack.next;
-      }
-    }
-
-    private static class RunnableExecutorPair {
-      final Runnable runnable;
-      final Executor executor;
-      // Volatile because this is written on one thread and read on another with no synchronization.
-      @Nullable volatile RunnableExecutorPair next;
-
-      RunnableExecutorPair(@Nullable Runnable runnable, @Nullable Executor executor) {
-        this.runnable = runnable;
-        this.executor = executor;
-      }
-
-      void execute() {
-        try {
-          executor.execute(runnable);
-        } catch (RuntimeException e) {
-          log.log(
-              Level.SEVERE,
-              "RuntimeException while executing runnable "
-                  + runnable
-                  + " with executor "
-                  + executor,
-              e);
-        }
       }
     }
   }

@@ -39,6 +39,7 @@ import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.util.Random;
 import junit.framework.TestCase;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Tests for {@link IntMath}.
@@ -46,6 +47,7 @@ import junit.framework.TestCase;
  * @author Louis Wasserman
  */
 @GwtCompatible(emulated = true)
+@NullUnmarked
 public class IntMathTest extends TestCase {
   public void testMaxSignedPowerOfTwo() {
     assertTrue(IntMath.isPowerOfTwo(IntMath.MAX_SIGNED_POWER_OF_TWO));
@@ -96,9 +98,9 @@ public class IntMathTest extends TestCase {
   @GwtIncompatible // BigIntegerMath // TODO(cpovirk): GWT-enable BigIntegerMath
   public void testConstantMaxPowerOfSqrt2Unsigned() {
     assertEquals(
-        /*expected=*/ BigIntegerMath.sqrt(BigInteger.ZERO.setBit(2 * Integer.SIZE - 1), FLOOR)
+        /* expected= */ BigIntegerMath.sqrt(BigInteger.ZERO.setBit(2 * Integer.SIZE - 1), FLOOR)
             .intValue(),
-        /*actual=*/ IntMath.MAX_POWER_OF_SQRT2_UNSIGNED);
+        /* actual= */ IntMath.MAX_POWER_OF_SQRT2_UNSIGNED);
   }
 
   @GwtIncompatible // pow()
@@ -146,8 +148,8 @@ public class IntMathTest extends TestCase {
   @GwtIncompatible // sqrt
   public void testPowersSqrtMaxInt() {
     assertEquals(
-        /*expected=*/ IntMath.sqrt(Integer.MAX_VALUE, FLOOR),
-        /*actual=*/ IntMath.FLOOR_SQRT_MAX_INT);
+        /* expected= */ IntMath.sqrt(Integer.MAX_VALUE, FLOOR),
+        /* actual= */ IntMath.FLOOR_SQRT_MAX_INT);
   }
 
   @AndroidIncompatible // presumably slow

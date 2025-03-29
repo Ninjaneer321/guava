@@ -65,7 +65,8 @@ import java.util.Set;
 import java.util.SortedSet;
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Unit test for {@code Iterables}.
@@ -74,7 +75,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @author Jared Levy
  */
 @GwtCompatible(emulated = true)
-@ElementTypesAreNonnullByDefault
+@NullMarked
 public class IterablesTest extends TestCase {
 
   public void testSize0() {
@@ -837,7 +838,9 @@ public class IterablesTest extends TestCase {
    * need to prove that it isn't called.
    */
   private static class DiesOnIteratorArrayList extends ArrayList<String> {
-    /** @throws UnsupportedOperationException all the time */
+    /**
+     * @throws UnsupportedOperationException all the time
+     */
     @Override
     public Iterator<String> iterator() {
       throw new UnsupportedOperationException();
@@ -876,7 +879,7 @@ public class IterablesTest extends TestCase {
     assertEquals("[a, b, c]", iterable.toString());
   }
 
-  @SuppressWarnings("deprecation") // test of deprecated method
+  @SuppressWarnings({"deprecation", "InlineMeInliner"}) // test of a deprecated method
   public void testUnmodifiableIterableShortCircuit() {
     List<String> list = newArrayList("a", "b", "c");
     Iterable<String> iterable = Iterables.unmodifiableIterable(list);
@@ -1231,11 +1234,12 @@ public class IterablesTest extends TestCase {
         }
       };
 
+  @SuppressWarnings("UnnecessaryStringBuilder") // false positive in a weird case
   public void testIndexOf_genericPredicate() {
     List<CharSequence> sequences = Lists.newArrayList();
     sequences.add("bob");
     sequences.add(new StringBuilder("charlie"));
-    sequences.add(new StringBuffer("henry"));
+    sequences.add(new StringBuilder("henry"));
     sequences.add(new StringBuilder("apple"));
     sequences.add("lemon");
 

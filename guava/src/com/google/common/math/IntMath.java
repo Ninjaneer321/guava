@@ -47,7 +47,6 @@ import java.math.RoundingMode;
  * @since 11.0
  */
 @GwtCompatible(emulated = true)
-@ElementTypesAreNonnullByDefault
 public final class IntMath {
   @VisibleForTesting static final int MAX_SIGNED_POWER_OF_TWO = 1 << (Integer.SIZE - 2);
 
@@ -118,7 +117,7 @@ public final class IntMath {
     switch (mode) {
       case UNNECESSARY:
         checkRoundingUnnecessary(isPowerOfTwo(x));
-        // fall through
+      // fall through
       case DOWN:
       case FLOOR:
         return (Integer.SIZE - 1) - Integer.numberOfLeadingZeros(x);
@@ -159,7 +158,7 @@ public final class IntMath {
     switch (mode) {
       case UNNECESSARY:
         checkRoundingUnnecessary(x == floorPow);
-        // fall through
+      // fall through
       case FLOOR:
       case DOWN:
         return logFloor;
@@ -226,11 +225,11 @@ public final class IntMath {
         return (k == 0) ? 1 : 0;
       case 1:
         return 1;
-      case (-1):
+      case -1:
         return ((k & 1) == 0) ? 1 : -1;
       case 2:
         return (k < Integer.SIZE) ? (1 << k) : 0;
-      case (-2):
+      case -2:
         if (k < Integer.SIZE) {
           return ((k & 1) == 0) ? (1 << k) : -(1 << k);
         } else {
@@ -332,7 +331,7 @@ public final class IntMath {
     switch (mode) {
       case UNNECESSARY:
         checkRoundingUnnecessary(rem == 0);
-        // fall through
+      // fall through
       case DOWN:
         increment = false;
         break;
@@ -370,13 +369,13 @@ public final class IntMath {
    *
    * <p>For example:
    *
-   * <pre>{@code
+   * {@snippet :
    * mod(7, 4) == 3
    * mod(-7, 4) == 1
    * mod(-1, 4) == 3
    * mod(-8, 4) == 0
    * mod(8, 4) == 0
-   * }</pre>
+   * }
    *
    * @throws ArithmeticException if {@code m <= 0}
    * @see <a href="http://docs.oracle.com/javase/specs/jls/se7/html/jls-15.html#jls-15.17.3">
@@ -491,12 +490,12 @@ public final class IntMath {
         return (k == 0) ? 1 : 0;
       case 1:
         return 1;
-      case (-1):
+      case -1:
         return ((k & 1) == 0) ? 1 : -1;
       case 2:
         checkNoOverflow(k < Integer.SIZE - 1, "checkedPow", b, k);
         return 1 << k;
-      case (-2):
+      case -2:
         checkNoOverflow(k < Integer.SIZE, "checkedPow", b, k);
         return ((k & 1) == 0) ? 1 << k : -1 << k;
       default:
@@ -567,14 +566,14 @@ public final class IntMath {
         return (k == 0) ? 1 : 0;
       case 1:
         return 1;
-      case (-1):
+      case -1:
         return ((k & 1) == 0) ? 1 : -1;
       case 2:
         if (k >= Integer.SIZE - 1) {
           return Integer.MAX_VALUE;
         }
         return 1 << k;
-      case (-2):
+      case -2:
         if (k >= Integer.SIZE) {
           return Integer.MAX_VALUE + (k & 1);
         }
@@ -668,7 +667,7 @@ public final class IntMath {
 
   // binomial(biggestBinomials[k], k) fits in an int, but not binomial(biggestBinomials[k]+1,k).
   @VisibleForTesting
-  static int[] biggestBinomials = {
+  static final int[] biggestBinomials = {
     Integer.MAX_VALUE,
     Integer.MAX_VALUE,
     65536,

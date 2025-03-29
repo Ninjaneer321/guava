@@ -28,8 +28,7 @@ import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
-import javax.annotation.CheckForNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Useful suppliers.
@@ -41,7 +40,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @since 2.0
  */
 @GwtCompatible(emulated = true)
-@ElementTypesAreNonnullByDefault
 public final class Suppliers {
   private Suppliers() {}
 
@@ -73,7 +71,7 @@ public final class Suppliers {
     }
 
     @Override
-    public boolean equals(@CheckForNull Object obj) {
+    public boolean equals(@Nullable Object obj) {
       if (obj instanceof SupplierComposition) {
         SupplierComposition<?, ?> that = (SupplierComposition<?, ?>) obj;
         return function.equals(that.function) && supplier.equals(that.supplier);
@@ -91,7 +89,7 @@ public final class Suppliers {
       return "Suppliers.compose(" + function + ", " + supplier + ")";
     }
 
-    private static final long serialVersionUID = 0;
+    @GwtIncompatible @J2ktIncompatible private static final long serialVersionUID = 0;
   }
 
   /**
@@ -128,7 +126,7 @@ public final class Suppliers {
     transient volatile boolean initialized;
     // "value" does not need to be volatile; visibility piggy-backs
     // on volatile read of "initialized".
-    @CheckForNull transient T value;
+    transient @Nullable T value;
 
     MemoizingSupplier(Supplier<T> delegate) {
       this.delegate = checkNotNull(delegate);
@@ -168,7 +166,7 @@ public final class Suppliers {
       lock = new Object();
     }
 
-    private static final long serialVersionUID = 0;
+    @GwtIncompatible @J2ktIncompatible private static final long serialVersionUID = 0;
   }
 
   @VisibleForTesting
@@ -176,14 +174,14 @@ public final class Suppliers {
     private final Object lock = new Object();
 
     @SuppressWarnings("UnnecessaryLambda") // Must be a fixed singleton object
-    private static final Supplier<Void> SUCCESSFULLY_COMPUTED =
+    private static final Supplier<@Nullable Void> SUCCESSFULLY_COMPUTED =
         () -> {
           throw new IllegalStateException(); // Should never get called.
         };
 
     private volatile Supplier<T> delegate;
     // "value" does not need to be volatile; visibility piggy-backs on volatile read of "delegate".
-    @CheckForNull private T value;
+    private @Nullable T value;
 
     NonSerializableMemoizingSupplier(Supplier<T> delegate) {
       this.delegate = checkNotNull(delegate);
@@ -289,7 +287,7 @@ public final class Suppliers {
 
     final Supplier<T> delegate;
     final long durationNanos;
-    @CheckForNull transient volatile T value;
+    transient volatile @Nullable T value;
     // The special value 0 means "not yet initialized".
     transient volatile long expirationNanos;
 
@@ -342,7 +340,7 @@ public final class Suppliers {
       lock = new Object();
     }
 
-    private static final long serialVersionUID = 0;
+    @GwtIncompatible @J2ktIncompatible private static final long serialVersionUID = 0;
   }
 
   /** Returns a supplier that always supplies {@code instance}. */
@@ -366,7 +364,7 @@ public final class Suppliers {
     }
 
     @Override
-    public boolean equals(@CheckForNull Object obj) {
+    public boolean equals(@Nullable Object obj) {
       if (obj instanceof SupplierOfInstance) {
         SupplierOfInstance<?> that = (SupplierOfInstance<?>) obj;
         return Objects.equal(instance, that.instance);
@@ -384,7 +382,7 @@ public final class Suppliers {
       return "Suppliers.ofInstance(" + instance + ")";
     }
 
-    private static final long serialVersionUID = 0;
+    @GwtIncompatible @J2ktIncompatible private static final long serialVersionUID = 0;
   }
 
   /**
@@ -419,7 +417,7 @@ public final class Suppliers {
       return "Suppliers.synchronizedSupplier(" + delegate + ")";
     }
 
-    private static final long serialVersionUID = 0;
+    @GwtIncompatible @J2ktIncompatible private static final long serialVersionUID = 0;
   }
 
   /**
@@ -443,8 +441,7 @@ public final class Suppliers {
 
     // Note: This makes T a "pass-through type"
     @Override
-    @CheckForNull
-    public Object apply(Supplier<@Nullable Object> input) {
+    public @Nullable Object apply(Supplier<@Nullable Object> input) {
       return input.get();
     }
 

@@ -41,7 +41,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.annotation.CheckForNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A builder of {@link LoadingCache} and {@link Cache} instances.
@@ -104,7 +104,7 @@ import javax.annotation.CheckForNull;
  *
  * <p>Usage example:
  *
- * <pre>{@code
+ * {@snippet :
  * LoadingCache<Key, Graph> graphs = CacheBuilder.newBuilder()
  *     .maximumSize(10000)
  *     .expireAfterWrite(Duration.ofMinutes(10))
@@ -115,11 +115,11 @@ import javax.annotation.CheckForNull;
  *             return createExpensiveGraph(key);
  *           }
  *         });
- * }</pre>
+ * }
  *
  * <p>Or equivalently,
  *
- * <pre>{@code
+ * {@snippet :
  * // In real life this would come from a command-line flag or config file
  * String spec = "maximumSize=10000,expireAfterWrite=10m";
  *
@@ -131,7 +131,7 @@ import javax.annotation.CheckForNull;
  *             return createExpensiveGraph(key);
  *           }
  *         });
- * }</pre>
+ * }
  *
  * <p>The returned cache implements all optional operations of the {@link LoadingCache} and {@link
  * Cache} interfaces. The {@code asMap} view (and its collection views) have <i>weakly consistent
@@ -192,7 +192,6 @@ import javax.annotation.CheckForNull;
  * @since 10.0
  */
 @GwtCompatible(emulated = true)
-@ElementTypesAreNonnullByDefault
 public final class CacheBuilder<K, V> {
   private static final int DEFAULT_INITIAL_CAPACITY = 16;
   private static final int DEFAULT_CONCURRENCY_LEVEL = 4;
@@ -287,10 +286,10 @@ public final class CacheBuilder<K, V> {
   int concurrencyLevel = UNSET_INT;
   long maximumSize = UNSET_INT;
   long maximumWeight = UNSET_INT;
-  @CheckForNull Weigher<? super K, ? super V> weigher;
+  @Nullable Weigher<? super K, ? super V> weigher;
 
-  @CheckForNull Strength keyStrength;
-  @CheckForNull Strength valueStrength;
+  @Nullable Strength keyStrength;
+  @Nullable Strength valueStrength;
 
   @SuppressWarnings("GoodTime") // should be a Duration
   long expireAfterWriteNanos = UNSET_INT;
@@ -301,11 +300,11 @@ public final class CacheBuilder<K, V> {
   @SuppressWarnings("GoodTime") // should be a Duration
   long refreshNanos = UNSET_INT;
 
-  @CheckForNull Equivalence<Object> keyEquivalence;
-  @CheckForNull Equivalence<Object> valueEquivalence;
+  @Nullable Equivalence<Object> keyEquivalence;
+  @Nullable Equivalence<Object> valueEquivalence;
 
-  @CheckForNull RemovalListener<? super K, ? super V> removalListener;
-  @CheckForNull Ticker ticker;
+  @Nullable RemovalListener<? super K, ? super V> removalListener;
+  @Nullable Ticker ticker;
 
   Supplier<? extends StatsCounter> statsCounterSupplier = NULL_STATS_COUNTER;
 

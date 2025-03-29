@@ -21,9 +21,11 @@ import com.google.common.annotations.GwtCompatible;
 import com.google.common.annotations.GwtIncompatible;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Utility {@link CacheLoader} implementations intended for use in testing.
@@ -31,6 +33,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @author mike nonemacher
  */
 @GwtCompatible(emulated = true)
+@NullUnmarked
 class TestingCacheLoaders {
 
   /**
@@ -134,6 +137,7 @@ class TestingCacheLoaders {
     private final AtomicInteger countLoad = new AtomicInteger();
     private final AtomicInteger countReload = new AtomicInteger();
 
+    @CanIgnoreReturnValue // Sure, why not?
     @Override
     public Integer load(Integer key) {
       countLoad.incrementAndGet();

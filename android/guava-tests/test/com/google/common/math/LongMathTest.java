@@ -42,6 +42,7 @@ import java.math.RoundingMode;
 import java.util.EnumSet;
 import java.util.Random;
 import junit.framework.TestCase;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Tests for LongMath.
@@ -49,6 +50,7 @@ import junit.framework.TestCase;
  * @author Louis Wasserman
  */
 @GwtCompatible(emulated = true)
+@NullUnmarked
 public class LongMathTest extends TestCase {
   @SuppressWarnings("ConstantOverflow")
   public void testMaxSignedPowerOfTwo() {
@@ -97,9 +99,9 @@ public class LongMathTest extends TestCase {
   @GwtIncompatible // TODO
   public void testConstantMaxPowerOfSqrt2Unsigned() {
     assertEquals(
-        /*expected=*/ BigIntegerMath.sqrt(BigInteger.ZERO.setBit(2 * Long.SIZE - 1), FLOOR)
+        /* expected= */ BigIntegerMath.sqrt(BigInteger.ZERO.setBit(2 * Long.SIZE - 1), FLOOR)
             .longValue(),
-        /*actual=*/ LongMath.MAX_POWER_OF_SQRT2_UNSIGNED);
+        /* actual= */ LongMath.MAX_POWER_OF_SQRT2_UNSIGNED);
   }
 
   @GwtIncompatible // BigIntegerMath // TODO(cpovirk): GWT-enable BigIntegerMath
@@ -135,8 +137,8 @@ public class LongMathTest extends TestCase {
   @GwtIncompatible // TODO
   public void testConstantsSqrtMaxLong() {
     assertEquals(
-        /*expected=*/ LongMath.sqrt(Long.MAX_VALUE, FLOOR),
-        /*actual=*/ LongMath.FLOOR_SQRT_MAX_LONG);
+        /* expected= */ LongMath.sqrt(Long.MAX_VALUE, FLOOR),
+        /* actual= */ LongMath.FLOOR_SQRT_MAX_LONG);
   }
 
   @GwtIncompatible // TODO

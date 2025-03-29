@@ -38,6 +38,7 @@ import java.util.Set;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Tests for {@code EnumHashBiMap}.
@@ -46,6 +47,7 @@ import junit.framework.TestSuite;
  */
 @J2ktIncompatible // EnumHashBiMap
 @GwtCompatible(emulated = true)
+@NullUnmarked
 public class EnumHashBiMapTest extends TestCase {
   private enum Currency {
     DOLLAR,
@@ -63,6 +65,7 @@ public class EnumHashBiMapTest extends TestCase {
     UK
   }
 
+  @AndroidIncompatible // test-suite builders
   public static final class EnumHashBiMapGenerator implements TestBiMapGenerator<Country, String> {
     @SuppressWarnings("unchecked")
     @Override
@@ -109,6 +112,7 @@ public class EnumHashBiMapTest extends TestCase {
 
   @J2ktIncompatible
   @GwtIncompatible // suite
+  @AndroidIncompatible // test-suite builders
   public static Test suite() {
     TestSuite suite = new TestSuite();
     suite.addTest(

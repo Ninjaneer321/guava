@@ -29,13 +29,16 @@ import java.util.Map.Entry;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Unit test of {@link MutableClassToInstanceMap}.
  *
  * @author Kevin Bourrillion
  */
+@NullUnmarked
 public class MutableClassToInstanceMapTest extends TestCase {
+  @AndroidIncompatible // test-suite builders
   public static Test suite() {
     TestSuite suite = new TestSuite();
     suite.addTestSuite(MutableClassToInstanceMapTest.class);
@@ -78,8 +81,7 @@ public class MutableClassToInstanceMapTest extends TestCase {
   }
 
   public void testConstraint() {
-
-    /**
+    /*
      * We'll give ourselves a pass on testing all the possible ways of breaking the constraint,
      * because we know that newClassMap() is implemented using ConstrainedMap which is itself
      * well-tested. A purist would object to this, but what can I say, we're dirty cheaters.

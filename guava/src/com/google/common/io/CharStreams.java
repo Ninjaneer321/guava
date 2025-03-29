@@ -28,8 +28,7 @@ import java.io.Writer;
 import java.nio.CharBuffer;
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.CheckForNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Provides utility methods for working with character streams.
@@ -45,7 +44,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  */
 @J2ktIncompatible
 @GwtIncompatible
-@ElementTypesAreNonnullByDefault
 public final class CharStreams {
 
   // 2K chars (4K bytes)
@@ -271,6 +269,11 @@ public final class CharStreams {
   /**
    * Returns a {@link Writer} that simply discards written chars.
    *
+   * <p><b>Java 11+ users:</b> use {@link Writer#nullWriter()} instead. Note that the {@link
+   * CharStreams} method returns a singleton writer whose {@code close} method has no effect, while
+   * the {@link Writer#nullWriter()} method returns a new instance whose methods throw after the
+   * instance is {@link Writer#close() closed}.
+   *
    * @since 15.0
    */
   public static Writer nullWriter() {
@@ -305,12 +308,12 @@ public final class CharStreams {
     }
 
     @Override
-    public Writer append(@CheckForNull CharSequence csq) {
+    public Writer append(@Nullable CharSequence csq) {
       return this;
     }
 
     @Override
-    public Writer append(@CheckForNull CharSequence csq, int start, int end) {
+    public Writer append(@Nullable CharSequence csq, int start, int end) {
       checkPositionIndexes(start, end, csq == null ? "null".length() : csq.length());
       return this;
     }

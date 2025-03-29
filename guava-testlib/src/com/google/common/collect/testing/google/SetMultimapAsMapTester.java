@@ -33,7 +33,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 import org.junit.Ignore;
 
 /**
@@ -47,7 +48,7 @@ import org.junit.Ignore;
 @Ignore("test runners must not instantiate and run this directly, only via suites we build")
 // @Ignore affects the Android test runner, which respects JUnit 4 annotations on JUnit 3 tests.
 @SuppressWarnings("JUnit4ClassUsedInJUnit3")
-@ElementTypesAreNonnullByDefault
+@NullMarked
 public class SetMultimapAsMapTester<K extends @Nullable Object, V extends @Nullable Object>
     extends AbstractMultimapTester<K, V, SetMultimap<K, V>> {
   public void testAsMapValuesImplementSet() {
@@ -91,6 +92,12 @@ public class SetMultimapAsMapTester<K extends @Nullable Object, V extends @Nulla
 
   @CollectionSize.Require(SEVERAL)
   @MapFeature.Require(SUPPORTS_REMOVE)
+  /*
+   * SetMultimap.asMap essentially returns a Map<K, Set<V>>; we just can't declare it that way.
+   * Thus, calls like asMap().values().remove(someSet) are safe because they are comparing a set to
+   * a collection of other sets.
+   */
+  @SuppressWarnings("CollectionUndefinedEquality")
   public void testValuesRemove() {
     resetContainer(mapEntry(k0(), v0()), mapEntry(k1(), v0()), mapEntry(k0(), v3()));
     assertTrue(multimap().asMap().values().remove(singleton(v0())));

@@ -25,8 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collector;
-import javax.annotation.CheckForNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Provides static methods for working with {@link Comparator} instances. For many other helpful
@@ -44,7 +43,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @author Louis Wasserman
  */
 @GwtCompatible
-@ElementTypesAreNonnullByDefault
 public final class Comparators {
   private Comparators() {}
 
@@ -118,11 +116,11 @@ public final class Comparators {
    *
    * <p>For example:
    *
-   * <pre>{@code
+   * {@snippet :
    * Stream.of("foo", "quux", "banana", "elephant")
    *     .collect(least(2, comparingInt(String::length)))
    * // returns {"foo", "quux"}
-   * }</pre>
+   * }
    *
    * <p>This {@code Collector} uses O(k) memory and takes expected time O(n) (worst-case O(n log
    * k)), as opposed to e.g. {@code Stream.sorted(comparator).limit(k)}, which currently takes O(n
@@ -152,11 +150,11 @@ public final class Comparators {
    *
    * <p>For example:
    *
-   * <pre>{@code
+   * {@snippet :
    * Stream.of("foo", "quux", "banana", "elephant")
    *     .collect(greatest(2, comparingInt(String::length)))
    * // returns {"elephant", "banana"}
-   * }</pre>
+   * }
    *
    * <p>This {@code Collector} uses O(k) memory and takes expected time O(n) (worst-case O(n log
    * k)), as opposed to e.g. {@code Stream.sorted(comparator.reversed()).limit(k)}, which currently
@@ -177,7 +175,7 @@ public final class Comparators {
    * than all other values, and orders the rest using {@code valueComparator} on the contained
    * value.
    *
-   * @since NEXT (but since 22.0 in the JRE flavor)
+   * @since 33.4.0 (but since 22.0 in the JRE flavor)
    */
   @SuppressWarnings("Java7ApiChecker")
   @IgnoreJRERequirement // Users will use this only if they're already using Optional.
@@ -192,7 +190,7 @@ public final class Comparators {
    * than all other values, and orders the rest using {@code valueComparator} on the contained
    * value.
    *
-   * @since NEXT (but since 22.0 in the JRE flavor)
+   * @since 33.4.0 (but since 22.0 in the JRE flavor)
    */
   @SuppressWarnings("Java7ApiChecker")
   @IgnoreJRERequirement // Users will use this only if they're already using Optional.
@@ -209,8 +207,7 @@ public final class Comparators {
    * Animal Sniffer error, despite the @IgnoreJRERequirement annotation there. For details, see
    * ImmutableSortedMultiset.
    */
-  @CheckForNull
-  private static <T> T orElseNull(Optional<T> optional) {
+  private static <T> @Nullable T orElseNull(Optional<T> optional) {
     return optional.orElse(null);
   }
 

@@ -30,7 +30,8 @@ import java.util.Queue;
 import java.util.SortedSet;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.Nullable;
 
 /**
  * An unbounded {@linkplain BlockingQueue blocking queue} that uses the same ordering rules as class
@@ -53,29 +54,37 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * applies first-in-first-out tie-breaking to comparable elements. To use it, you would insert a
  * {@code new FIFOEntry(anEntry)} instead of a plain entry object.
  *
- * <pre>
- * class FIFOEntry&lt;E extends Comparable&lt;? super E&gt;&gt;
- *     implements Comparable&lt;FIFOEntry&lt;E&gt;&gt; {
- *   final static AtomicLong seq = new AtomicLong();
+ * <pre>{@code
+ * class FIFOEntry<E extends Comparable<? super E>> implements Comparable<FIFOEntry<E>> {
+ *   static final AtomicLong seq = new AtomicLong();
+ *
  *   final long seqNum;
  *   final E entry;
+ *
  *   public FIFOEntry(E entry) {
  *     seqNum = seq.getAndIncrement();
  *     this.entry = entry;
  *   }
- *   public E getEntry() { return entry; }
- *   public int compareTo(FIFOEntry&lt;E&gt; other) {
+ *
+ *   public E getEntry() {
+ *     return entry;
+ *   }
+ *
+ *   public int compareTo(FIFOEntry<E> other) {
  *     int res = entry.compareTo(other.entry);
- *     if (res == 0 &amp;&amp; other.entry != this.entry)
- *       res = (seqNum &lt; other.seqNum ? -1 : 1);
+ *     if (res == 0 && other.entry != this.entry) {
+ *       res = (seqNum < other.seqNum ? -1 : 1);
+ *     }
  *     return res;
  *   }
+ * }
  * }</pre>
  *
  * @author Doug Lea
  * @author Justin T. Sampson
  * @param <E> the type of elements held in this collection
  */
+@NullUnmarked
 public class MonitorBasedPriorityBlockingQueue<E> extends AbstractQueue<E>
     implements BlockingQueue<E> {
 

@@ -44,10 +44,11 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 @GwtCompatible(emulated = true)
-@ElementTypesAreNonnullByDefault
+@NullMarked
 public class Helpers {
   // Clone of Objects.equal
   static boolean equal(@Nullable Object a, @Nullable Object b) {
@@ -199,11 +200,10 @@ public class Helpers {
   }
 
   static <T extends @Nullable Object> Iterable<T> reverse(List<T> list) {
-    return new Iterable<T>() {
-      @Override
-      public Iterator<T> iterator() {
-        ListIterator<T> listIter = list.listIterator(list.size());
-        return new Iterator<T>() {
+    return () ->
+        new Iterator<T>() {
+          private final ListIterator<T> listIter = list.listIterator(list.size());
+
           @Override
           public boolean hasNext() {
             return listIter.hasPrevious();
@@ -219,8 +219,6 @@ public class Helpers {
             listIter.remove();
           }
         };
-      }
-    };
   }
 
   static <T extends @Nullable Object> Iterator<T> cycle(Iterable<T> iterable) {

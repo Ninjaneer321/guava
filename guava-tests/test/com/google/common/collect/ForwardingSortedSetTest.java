@@ -32,13 +32,15 @@ import java.util.SortedSet;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Tests for {@code ForwardingSortedSet}.
  *
  * @author Louis Wasserman
  */
+@NullUnmarked
 public class ForwardingSortedSetTest extends TestCase {
   static class StandardImplForwardingSortedSet<T> extends ForwardingSortedSet<T> {
     private final SortedSet<T> backingSortedSet;
@@ -118,6 +120,7 @@ public class ForwardingSortedSetTest extends TestCase {
     }
   }
 
+  @AndroidIncompatible // test-suite builders
   public static Test suite() {
     TestSuite suite = new TestSuite();
 

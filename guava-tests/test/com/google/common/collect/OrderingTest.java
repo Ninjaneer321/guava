@@ -49,8 +49,9 @@ import java.util.List;
 import java.util.Random;
 import java.util.RandomAccess;
 import junit.framework.TestCase;
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Unit tests for {@code Ordering}.
@@ -58,7 +59,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @author Jesse Wilson
  */
 @GwtCompatible(emulated = true)
-@ElementTypesAreNonnullByDefault
+@NullMarked
 public class OrderingTest extends TestCase {
   // TODO(cpovirk): some of these are inexplicably slow (20-30s) under GWT
 
@@ -132,7 +133,7 @@ public class OrderingTest extends TestCase {
     assertTrue(caseInsensitiveOrdering.compare("a", "B") < 0);
     assertTrue(caseInsensitiveOrdering.compare("B", "a") > 0);
 
-    @SuppressWarnings("deprecation") // test of deprecated method
+    @SuppressWarnings({"deprecation", "InlineMeInliner"}) // test of a deprecated method
     Ordering<String> orderingFromOrdering = Ordering.from(Ordering.<String>natural());
     new EqualsTester()
         .addEqualityGroup(caseInsensitiveOrdering, Ordering.from(String.CASE_INSENSITIVE_ORDER))
@@ -357,7 +358,7 @@ public class OrderingTest extends TestCase {
   }
 
   private enum StringLengthFunction implements Function<String, Integer> {
-    StringLength;
+    STRING_LENGTH;
 
     @Override
     public Integer apply(String string) {
@@ -369,35 +370,35 @@ public class OrderingTest extends TestCase {
 
   public void testOnResultOf_natural() {
     Comparator<String> comparator =
-        Ordering.<Integer>natural().onResultOf(StringLengthFunction.StringLength);
+        Ordering.<Integer>natural().onResultOf(StringLengthFunction.STRING_LENGTH);
     assertTrue(comparator.compare("to", "be") == 0);
     assertTrue(comparator.compare("or", "not") < 0);
     assertTrue(comparator.compare("that", "to") > 0);
 
     new EqualsTester()
         .addEqualityGroup(
-            comparator, Ordering.<Integer>natural().onResultOf(StringLengthFunction.StringLength))
+            comparator, Ordering.<Integer>natural().onResultOf(StringLengthFunction.STRING_LENGTH))
         .addEqualityGroup(DECREASING_INTEGER)
         .testEquals();
     reserializeAndAssert(comparator);
-    assertEquals("Ordering.natural().onResultOf(StringLength)", comparator.toString());
+    assertEquals("Ordering.natural().onResultOf(STRING_LENGTH)", comparator.toString());
   }
 
   public void testOnResultOf_chained() {
     Comparator<String> comparator =
-        DECREASING_INTEGER.onResultOf(StringLengthFunction.StringLength);
+        DECREASING_INTEGER.onResultOf(StringLengthFunction.STRING_LENGTH);
     assertTrue(comparator.compare("to", "be") == 0);
     assertTrue(comparator.compare("not", "or") < 0);
     assertTrue(comparator.compare("to", "that") > 0);
 
     new EqualsTester()
         .addEqualityGroup(
-            comparator, DECREASING_INTEGER.onResultOf(StringLengthFunction.StringLength))
+            comparator, DECREASING_INTEGER.onResultOf(StringLengthFunction.STRING_LENGTH))
         .addEqualityGroup(DECREASING_INTEGER.onResultOf(Functions.constant(1)))
         .addEqualityGroup(Ordering.natural())
         .testEquals();
     reserializeAndAssert(comparator);
-    assertEquals("Ordering.natural().reverse().onResultOf(StringLength)", comparator.toString());
+    assertEquals("Ordering.natural().reverse().onResultOf(STRING_LENGTH)", comparator.toString());
   }
 
   public void testLexicographical() {
@@ -441,6 +442,7 @@ public class OrderingTest extends TestCase {
         .testEquals();
   }
 
+  @SuppressWarnings({"deprecation", "InlineMeInliner"}) // test of a deprecated method
   public void testBinarySearch() {
     List<Integer> ints = Lists.newArrayList(0, 2, 3, 5, 7, 9);
     assertEquals(4, numberOrdering.binarySearch(ints, 7));
@@ -839,7 +841,7 @@ public class OrderingTest extends TestCase {
       return other instanceof NumberOrdering;
     }
 
-    private static final long serialVersionUID = 0;
+    @GwtIncompatible @J2ktIncompatible private static final long serialVersionUID = 0;
   }
 
   /*
@@ -965,6 +967,7 @@ public class OrderingTest extends TestCase {
       assertEquals(max, ordering.max(max, min));
     }
 
+    @SuppressWarnings({"deprecation", "InlineMeInliner"}) // test of a deprecated method
     void testBinarySearch() {
       for (int i = 0; i < strictlyOrderedList.size(); i++) {
         assertEquals(i, ordering.binarySearch(strictlyOrderedList, strictlyOrderedList.get(i)));

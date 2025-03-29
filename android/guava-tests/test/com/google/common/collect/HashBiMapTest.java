@@ -34,6 +34,7 @@ import java.util.Set;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import org.jspecify.annotations.NullMarked;
 
 /**
  * Tests for {@link HashBiMap}.
@@ -41,9 +42,11 @@ import junit.framework.TestSuite;
  * @author Mike Bostock
  */
 @GwtCompatible(emulated = true)
-@ElementTypesAreNonnullByDefault
+@NullMarked
 public class HashBiMapTest extends TestCase {
 
+  @J2ktIncompatible
+  @AndroidIncompatible // test-suite builders
   public static final class HashBiMapGenerator extends TestStringBiMapGenerator {
     @Override
     protected BiMap<String, String> create(Entry<String, String>[] entries) {
@@ -57,6 +60,7 @@ public class HashBiMapTest extends TestCase {
 
   @J2ktIncompatible
   @GwtIncompatible // suite
+  @AndroidIncompatible // test-suite builders
   public static Test suite() {
     TestSuite suite = new TestSuite();
     suite.addTest(

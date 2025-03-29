@@ -19,7 +19,7 @@ package com.google.common.graph;
 import com.google.common.annotations.Beta;
 import com.google.errorprone.annotations.DoNotMock;
 import java.util.Set;
-import javax.annotation.CheckForNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * An interface for <a
@@ -55,9 +55,9 @@ import javax.annotation.CheckForNull;
  * create an instance of one of the built-in implementations of {@code Network}, use the {@link
  * NetworkBuilder} class:
  *
- * <pre>{@code
+ * {@snippet :
  * MutableNetwork<Integer, MyEdge> network = NetworkBuilder.directed().build();
- * }</pre>
+ * }
  *
  * <p>{@link NetworkBuilder#build()} returns an instance of {@link MutableNetwork}, which is a
  * subtype of {@code Network} that provides methods for adding and removing nodes and edges. If you
@@ -68,9 +68,9 @@ import javax.annotation.CheckForNull;
  * <p>You can create an immutable copy of an existing {@code Network} using {@link
  * ImmutableNetwork#copyOf(Network)}:
  *
- * <pre>{@code
+ * {@snippet :
  * ImmutableNetwork<Integer, MyEdge> immutableGraph = ImmutableNetwork.copyOf(network);
- * }</pre>
+ * }
  *
  * <p>Instances of {@link ImmutableNetwork} do not implement {@link MutableNetwork} (obviously!) and
  * are contractually guaranteed to be unmodifiable and thread-safe.
@@ -103,7 +103,6 @@ import javax.annotation.CheckForNull;
  */
 @Beta
 @DoNotMock("Use NetworkBuilder to create a real instance")
-@ElementTypesAreNonnullByDefault
 public interface Network<N, E> extends SuccessorsFunction<N>, PredecessorsFunction<N> {
   //
   // Network-level accessors
@@ -426,8 +425,7 @@ public interface Network<N, E> extends SuccessorsFunction<N>, PredecessorsFuncti
    *     network
    * @since 23.0
    */
-  @CheckForNull
-  E edgeConnectingOrNull(N nodeU, N nodeV);
+  @Nullable E edgeConnectingOrNull(N nodeU, N nodeV);
 
   /**
    * Returns the single edge that directly connects {@code endpoints} (in the order, if any,
@@ -441,8 +439,7 @@ public interface Network<N, E> extends SuccessorsFunction<N>, PredecessorsFuncti
    * @throws IllegalArgumentException if the endpoints are unordered and the network is directed
    * @since 27.1
    */
-  @CheckForNull
-  E edgeConnectingOrNull(EndpointPair<N> endpoints);
+  @Nullable E edgeConnectingOrNull(EndpointPair<N> endpoints);
 
   /**
    * Returns true if there is an edge that directly connects {@code nodeU} to {@code nodeV}. This is
@@ -493,7 +490,7 @@ public interface Network<N, E> extends SuccessorsFunction<N>, PredecessorsFuncti
    * <p>A reference implementation of this is provided by {@link AbstractNetwork#equals(Object)}.
    */
   @Override
-  boolean equals(@CheckForNull Object object);
+  boolean equals(@Nullable Object object);
 
   /**
    * Returns the hash code for this network. The hash code of a network is defined as the hash code

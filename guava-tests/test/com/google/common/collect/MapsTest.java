@@ -66,7 +66,8 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentMap;
 import junit.framework.TestCase;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Unit test for {@code Maps}.
@@ -76,7 +77,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @author Jared Levy
  */
 @GwtCompatible(emulated = true)
-@ElementTypesAreNonnullByDefault
+@NullMarked
 @SuppressWarnings("JUnitIncompatibleType") // Many intentional violations here.
 public class MapsTest extends TestCase {
 
@@ -224,7 +225,6 @@ public class MapsTest extends TestCase {
     assertEquals(emptyMap(), map);
   }
 
-  @SuppressWarnings("serial")
   public void testLinkedHashMapWithInitialMap() {
     Map<String, String> map =
         new LinkedHashMap<String, String>(
@@ -981,7 +981,6 @@ public class MapsTest extends TestCase {
 
   @J2ktIncompatible
   @GwtIncompatible // Maps.fromProperties
-  @SuppressWarnings("deprecation") // StringBufferInputStream
   public void testFromProperties() throws IOException {
     Properties testProp = new Properties();
 
@@ -1423,12 +1422,12 @@ public class MapsTest extends TestCase {
           iterator.remove();
         });
     {
-    Entry<Integer, String> entry = entries.iterator().next();
+      Entry<Integer, String> entry = entries.iterator().next();
       assertThrows(UnsupportedOperationException.class, () -> entry.setValue("four"));
     }
     {
       Entry<Integer, String> entry = unmod.lowerEntry(1);
-    assertNull(entry);
+      assertNull(entry);
     }
     {
       Entry<Integer, String> entry = unmod.floorEntry(2);

@@ -29,13 +29,16 @@ import java.util.Map.Entry;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Tests for {@code CompactLinkedHashMap}.
  *
  * @author Louis Wasserman
  */
+@NullUnmarked
 public class CompactLinkedHashMapTest extends TestCase {
+  @AndroidIncompatible // test-suite builders
   public static Test suite() {
     TestSuite suite = new TestSuite();
     suite.addTest(

@@ -31,6 +31,7 @@ import java.util.List;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import org.jspecify.annotations.NullMarked;
 
 /**
  * Unit test for {@link LinkedHashMultiset}.
@@ -38,11 +39,12 @@ import junit.framework.TestSuite;
  * @author Kevin Bourrillion
  */
 @GwtCompatible(emulated = true)
-@ElementTypesAreNonnullByDefault
+@NullMarked
 public class LinkedHashMultisetTest extends TestCase {
 
   @J2ktIncompatible
   @GwtIncompatible // suite
+  @AndroidIncompatible // test-suite builders
   public static Test suite() {
     TestSuite suite = new TestSuite();
     suite.addTest(
@@ -61,6 +63,8 @@ public class LinkedHashMultisetTest extends TestCase {
     return suite;
   }
 
+  @J2ktIncompatible
+  @AndroidIncompatible // test-suite builders
   private static TestStringMultisetGenerator linkedHashMultisetGenerator() {
     return new TestStringMultisetGenerator() {
       @Override

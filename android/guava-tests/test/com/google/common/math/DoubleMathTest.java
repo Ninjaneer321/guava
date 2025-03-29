@@ -51,8 +51,8 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.util.Arrays;
-import java.util.List;
 import junit.framework.TestCase;
+import org.jspecify.annotations.NullUnmarked;
 
 /**
  * Tests for {@code DoubleMath}.
@@ -60,6 +60,7 @@ import junit.framework.TestCase;
  * @author Louis Wasserman
  */
 @GwtCompatible(emulated = true)
+@NullUnmarked
 public class DoubleMathTest extends TestCase {
 
   private static final BigDecimal MAX_INT_AS_BIG_DECIMAL = BigDecimal.valueOf(Integer.MAX_VALUE);
@@ -356,13 +357,8 @@ public class DoubleMathTest extends TestCase {
       for (RoundingMode mode : asList(HALF_EVEN, HALF_UP, HALF_DOWN)) {
         double x = Math.scalb(Math.sqrt(2) + 0.001, exp);
         double y = Math.scalb(Math.sqrt(2) - 0.001, exp);
-        if (exp < 0) {
-          assertEquals(exp + 1, DoubleMath.log2(x, mode));
-          assertEquals(exp, DoubleMath.log2(y, mode));
-        } else {
-          assertEquals(exp + 1, DoubleMath.log2(x, mode));
-          assertEquals(exp, DoubleMath.log2(y, mode));
-        }
+        assertEquals(exp + 1, DoubleMath.log2(x, mode));
+        assertEquals(exp, DoubleMath.log2(y, mode));
       }
     }
   }
@@ -452,6 +448,7 @@ public class DoubleMathTest extends TestCase {
   }
 
   @GwtIncompatible // StrictMath
+  @SuppressWarnings("strictfp") // Guava still supports Java 8
   private strictfp double trueLog2(double d) {
     double trueLog2 = StrictMath.log(d) / StrictMath.log(2);
     // increment until it's >= the true value
@@ -514,17 +511,20 @@ public class DoubleMathTest extends TestCase {
       ImmutableList.of(-0.0, 0.0, 1.0, 100.0, 10000.0, Double.MAX_VALUE);
 
   private static final Iterable<Double> TOLERANCE_CANDIDATES =
-      Iterables.concat(FINITE_TOLERANCE_CANDIDATES, ImmutableList.of(Double.POSITIVE_INFINITY));
+      ImmutableList.copyOf(
+          Iterables.concat(
+              FINITE_TOLERANCE_CANDIDATES, ImmutableList.of(Double.POSITIVE_INFINITY)));
 
-  private static final List<Double> BAD_TOLERANCE_CANDIDATES =
-      Doubles.asList(
-          -Double.MIN_VALUE,
-          -Double.MIN_NORMAL,
-          -1,
-          -20,
-          Double.NaN,
-          Double.NEGATIVE_INFINITY,
-          -0.001);
+  private static final ImmutableList<Double> BAD_TOLERANCE_CANDIDATES =
+      ImmutableList.copyOf(
+          Doubles.asList(
+              -Double.MIN_VALUE,
+              -Double.MIN_NORMAL,
+              -1,
+              -20,
+              Double.NaN,
+              Double.NEGATIVE_INFINITY,
+              -0.001));
 
   public void testFuzzyEqualsFinite() {
     for (double a : FINITE_DOUBLE_CANDIDATES) {

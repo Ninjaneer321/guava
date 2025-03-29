@@ -26,7 +26,8 @@ import java.util.WeakHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import junit.framework.TestCase;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Tests for {@link GcFinalization}.
@@ -36,6 +37,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  */
 @AndroidIncompatible // depends on details of gc
 
+@NullUnmarked
 public class GcFinalizationTest extends TestCase {
 
   // ----------------------------------------------------------------
@@ -231,8 +233,8 @@ public class GcFinalizationTest extends TestCase {
     // Use e.g. awaitClear or await(CountDownLatch) instead.
     GcFinalization.awaitFullGc();
 
-    // If this test turns out to be flaky, add a second call to awaitFullGc()
-    // GcFinalization.awaitFullGc();
+    // Attempt to help with some flakiness that we've seen: b/387521512.
+    GcFinalization.awaitFullGc();
 
     assertEquals(0, finalizerRan.getCount());
     assertNull(ref.get());

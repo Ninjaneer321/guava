@@ -38,8 +38,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Spliterator;
 import java.util.function.Consumer;
-import javax.annotation.CheckForNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Provides static methods for working with {@code Collection} instances.
@@ -55,7 +54,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @since 2.0
  */
 @GwtCompatible
-@ElementTypesAreNonnullByDefault
 public final class Collections2 {
   private Collections2() {}
 
@@ -101,7 +99,7 @@ public final class Collections2 {
    * Delegates to {@link Collection#contains}. Returns {@code false} if the {@code contains} method
    * throws a {@code ClassCastException} or {@code NullPointerException}.
    */
-  static boolean safeContains(Collection<?> collection, @CheckForNull Object object) {
+  static boolean safeContains(Collection<?> collection, @Nullable Object object) {
     checkNotNull(collection);
     try {
       return collection.contains(object);
@@ -114,7 +112,7 @@ public final class Collections2 {
    * Delegates to {@link Collection#remove}. Returns {@code false} if the {@code remove} method
    * throws a {@code ClassCastException} or {@code NullPointerException}.
    */
-  static boolean safeRemove(Collection<?> collection, @CheckForNull Object object) {
+  static boolean safeRemove(Collection<?> collection, @Nullable Object object) {
     checkNotNull(collection);
     try {
       return collection.remove(object);
@@ -156,7 +154,7 @@ public final class Collections2 {
     }
 
     @Override
-    public boolean contains(@CheckForNull Object element) {
+    public boolean contains(@Nullable Object element) {
       if (safeContains(unfiltered, element)) {
         @SuppressWarnings("unchecked") // element is in unfiltered, so it must be an E
         E e = (E) element;
@@ -197,17 +195,17 @@ public final class Collections2 {
     }
 
     @Override
-    public boolean remove(@CheckForNull Object element) {
+    public boolean remove(@Nullable Object element) {
       return contains(element) && unfiltered.remove(element);
     }
 
     @Override
-    public boolean removeAll(final Collection<?> collection) {
+    public boolean removeAll(Collection<?> collection) {
       return removeIf(collection::contains);
     }
 
     @Override
-    public boolean retainAll(final Collection<?> collection) {
+    public boolean retainAll(Collection<?> collection) {
       return removeIf(element -> !collection.contains(element));
     }
 
@@ -334,7 +332,7 @@ public final class Collections2 {
   }
 
   /** An implementation of {@link Collection#toString()}. */
-  static String toStringImpl(final Collection<?> collection) {
+  static String toStringImpl(Collection<?> collection) {
     StringBuilder sb = newStringBuilderForCollection(collection.size()).append('[');
     boolean first = true;
     for (Object o : collection) {
@@ -390,7 +388,7 @@ public final class Collections2 {
    *
    * <p>Examples:
    *
-   * <pre>{@code
+   * {@snippet :
    * for (List<String> perm : orderedPermutations(asList("b", "c", "a"))) {
    *   println(perm);
    * }
@@ -410,7 +408,7 @@ public final class Collections2 {
    * // -> [2, 1, 1, 2]
    * // -> [2, 1, 2, 1]
    * // -> [2, 2, 1, 1]
-   * }</pre>
+   * }
    *
    * <p><i>Notes:</i> This is an implementation of the algorithm for Lexicographical Permutations
    * Generation, described in Knuth's "The Art of Computer Programming", Volume 4, Chapter 7,
@@ -492,7 +490,7 @@ public final class Collections2 {
     }
 
     @Override
-    public boolean contains(@CheckForNull Object obj) {
+    public boolean contains(@Nullable Object obj) {
       if (obj instanceof List) {
         List<?> list = (List<?>) obj;
         return isPermutation(inputList, list);
@@ -507,7 +505,7 @@ public final class Collections2 {
   }
 
   private static final class OrderedPermutationIterator<E> extends AbstractIterator<List<E>> {
-    @CheckForNull List<E> nextPermutation;
+    @Nullable List<E> nextPermutation;
     final Comparator<? super E> comparator;
 
     OrderedPermutationIterator(List<E> list, Comparator<? super E> comparator) {
@@ -516,8 +514,7 @@ public final class Collections2 {
     }
 
     @Override
-    @CheckForNull
-    protected List<E> computeNext() {
+    protected @Nullable List<E> computeNext() {
       if (nextPermutation == null) {
         return endOfData();
       }
@@ -618,7 +615,7 @@ public final class Collections2 {
     }
 
     @Override
-    public boolean contains(@CheckForNull Object obj) {
+    public boolean contains(@Nullable Object obj) {
       if (obj instanceof List) {
         List<?> list = (List<?>) obj;
         return isPermutation(inputList, list);
@@ -649,8 +646,7 @@ public final class Collections2 {
     }
 
     @Override
-    @CheckForNull
-    protected List<E> computeNext() {
+    protected @Nullable List<E> computeNext() {
       if (j <= 0) {
         return endOfData();
       }

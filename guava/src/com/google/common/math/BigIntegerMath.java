@@ -45,7 +45,6 @@ import java.util.List;
  * @since 11.0
  */
 @GwtCompatible(emulated = true)
-@ElementTypesAreNonnullByDefault
 public final class BigIntegerMath {
   /**
    * Returns the smallest power of two greater than or equal to {@code x}. This is equivalent to
@@ -186,7 +185,7 @@ public final class BigIntegerMath {
     switch (mode) {
       case UNNECESSARY:
         checkRoundingUnnecessary(floorCmp == 0);
-        // fall through
+      // fall through
       case FLOOR:
       case DOWN:
         return floorLog;

@@ -31,6 +31,7 @@ import com.google.common.collect.Collections2.FilteredCollection;
 import com.google.common.math.IntMath;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.errorprone.annotations.DoNotCall;
+import com.google.errorprone.annotations.InlineMe;
 import com.google.errorprone.annotations.concurrent.LazyInit;
 import java.io.Serializable;
 import java.util.AbstractSet;
@@ -53,9 +54,8 @@ import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collector;
-import javax.annotation.CheckForNull;
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Static utility methods pertaining to {@link Set} instances. Also see this class's counterparts
@@ -70,7 +70,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @since 2.0
  */
 @GwtCompatible(emulated = true)
-@ElementTypesAreNonnullByDefault
 public final class Sets {
   private Sets() {}
 
@@ -101,7 +100,6 @@ public final class Sets {
    * @param otherElements the rest of the elements the set should contain
    * @return an immutable set containing those elements, minus duplicates
    */
-  // http://code.google.com/p/google-web-toolkit/issues/detail?id=3028
   @GwtCompatible(serializable = true)
   public static <E extends Enum<E>> ImmutableSet<E> immutableEnumSet(
       E anElement, E... otherElements) {
@@ -118,7 +116,6 @@ public final class Sets {
    * @param elements the elements, all of the same {@code enum} type, that the set should contain
    * @return an immutable set containing those elements, minus duplicates
    */
-  // http://code.google.com/p/google-web-toolkit/issues/detail?id=3028
   @GwtCompatible(serializable = true)
   public static <E extends Enum<E>> ImmutableSet<E> immutableEnumSet(Iterable<E> elements) {
     if (elements instanceof ImmutableEnumSet) {
@@ -564,10 +561,10 @@ public final class Sets {
    * empty, passed directly to this method, and no reference to the map is retained, as illustrated
    * in the following code fragment:
    *
-   * <pre>{@code
+   * {@snippet :
    * Set<Object> identityHashSet = Sets.newSetFromMap(
    *     new IdentityHashMap<Object, Boolean>());
-   * }</pre>
+   * }
    *
    * <p>The returned set is serializable if the backing map is.
    *
@@ -576,6 +573,7 @@ public final class Sets {
    * @throws IllegalArgumentException if {@code map} is not empty
    * @deprecated Use {@link Collections#newSetFromMap} instead.
    */
+  @InlineMe(replacement = "Collections.newSetFromMap(map)", imports = "java.util.Collections")
   @Deprecated
   public static <E extends @Nullable Object> Set<E> newSetFromMap(
       Map<E, Boolean> map) {
@@ -655,7 +653,7 @@ public final class Sets {
     @Deprecated
     @Override
     @DoNotCall("Always throws UnsupportedOperationException")
-    public final boolean remove(@CheckForNull Object object) {
+    public final boolean remove(@Nullable Object object) {
       throw new UnsupportedOperationException();
     }
 
@@ -746,7 +744,7 @@ public final class Sets {
    * {@link TreeSet} or the {@link Map#keySet} of an {@code IdentityHashMap}.
    */
   public static <E extends @Nullable Object> SetView<E> union(
-      final Set<? extends E> set1, final Set<? extends E> set2) {
+      Set<? extends E> set1, Set<? extends E> set2) {
     checkNotNull(set1, "set1");
     checkNotNull(set2, "set2");
 
@@ -774,8 +772,7 @@ public final class Sets {
           final Iterator<? extends E> itr2 = set2.iterator();
 
           @Override
-          @CheckForNull
-          protected E computeNext() {
+          protected @Nullable E computeNext() {
             if (itr1.hasNext()) {
               return itr1.next();
             }
@@ -791,7 +788,7 @@ public final class Sets {
       }
 
       @Override
-      public boolean contains(@CheckForNull Object object) {
+      public boolean contains(@Nullable Object object) {
         return set1.contains(object) || set2.contains(object);
       }
 
@@ -824,7 +821,7 @@ public final class Sets {
    * set based on the type of the first set passed, this could in rare cases force you to make a
    * cast, for example:
    *
-   * <pre>{@code
+   * {@snippet :
    * Set<Object> aFewBadObjects = ...
    * Set<String> manyBadStrings = ...
    *
@@ -832,12 +829,11 @@ public final class Sets {
    * SuppressWarnings("unchecked")
    * Set<String> badStrings = (Set) Sets.intersection(
    *     aFewBadObjects, manyBadStrings);
-   * }</pre>
+   * }
    *
    * <p>This is unfortunate, but should come up only very rarely.
    */
-  public static <E extends @Nullable Object> SetView<E> intersection(
-      final Set<E> set1, final Set<?> set2) {
+  public static <E extends @Nullable Object> SetView<E> intersection(Set<E> set1, Set<?> set2) {
     checkNotNull(set1, "set1");
     checkNotNull(set2, "set2");
 
@@ -848,8 +844,7 @@ public final class Sets {
           final Iterator<E> itr = set1.iterator();
 
           @Override
-          @CheckForNull
-          protected E computeNext() {
+          protected @Nullable E computeNext() {
             while (itr.hasNext()) {
               E e = itr.next();
               if (set2.contains(e)) {
@@ -878,7 +873,7 @@ public final class Sets {
       }
 
       @Override
-      public boolean contains(@CheckForNull Object object) {
+      public boolean contains(@Nullable Object object) {
         return set1.contains(object) && set2.contains(object);
       }
 
@@ -904,8 +899,7 @@ public final class Sets {
    * equivalence relations, for example if {@code set1} is a {@link HashSet} and {@code set2} is a
    * {@link TreeSet} or the {@link Map#keySet} of an {@code IdentityHashMap}.
    */
-  public static <E extends @Nullable Object> SetView<E> difference(
-      final Set<E> set1, final Set<?> set2) {
+  public static <E extends @Nullable Object> SetView<E> difference(Set<E> set1, Set<?> set2) {
     checkNotNull(set1, "set1");
     checkNotNull(set2, "set2");
 
@@ -916,8 +910,7 @@ public final class Sets {
           final Iterator<E> itr = set1.iterator();
 
           @Override
-          @CheckForNull
-          protected E computeNext() {
+          protected @Nullable E computeNext() {
             while (itr.hasNext()) {
               E e = itr.next();
               if (!set2.contains(e)) {
@@ -946,7 +939,7 @@ public final class Sets {
       }
 
       @Override
-      public boolean contains(@CheckForNull Object element) {
+      public boolean contains(@Nullable Object element) {
         return set1.contains(element) && !set2.contains(element);
       }
 
@@ -969,19 +962,18 @@ public final class Sets {
    * @since 3.0
    */
   public static <E extends @Nullable Object> SetView<E> symmetricDifference(
-      final Set<? extends E> set1, final Set<? extends E> set2) {
+      Set<? extends E> set1, Set<? extends E> set2) {
     checkNotNull(set1, "set1");
     checkNotNull(set2, "set2");
 
     return new SetView<E>() {
       @Override
       public UnmodifiableIterator<E> iterator() {
-        final Iterator<? extends E> itr1 = set1.iterator();
-        final Iterator<? extends E> itr2 = set2.iterator();
+        Iterator<? extends E> itr1 = set1.iterator();
+        Iterator<? extends E> itr2 = set2.iterator();
         return new AbstractIterator<E>() {
           @Override
-          @CheckForNull
-          public E computeNext() {
+          public @Nullable E computeNext() {
             while (itr1.hasNext()) {
               E elem1 = itr1.next();
               if (!set2.contains(elem1)) {
@@ -1021,7 +1013,7 @@ public final class Sets {
       }
 
       @Override
-      public boolean contains(@CheckForNull Object element) {
+      public boolean contains(@Nullable Object element) {
         return set1.contains(element) ^ set2.contains(element);
       }
 
@@ -1157,7 +1149,7 @@ public final class Sets {
     }
 
     @Override
-    public boolean equals(@CheckForNull Object object) {
+    public boolean equals(@Nullable Object object) {
       return equalsImpl(this, object);
     }
 
@@ -1175,8 +1167,7 @@ public final class Sets {
     }
 
     @Override
-    @CheckForNull
-    public Comparator<? super E> comparator() {
+    public @Nullable Comparator<? super E> comparator() {
       return ((SortedSet<E>) unfiltered).comparator();
     }
 
@@ -1228,38 +1219,32 @@ public final class Sets {
     }
 
     @Override
-    @CheckForNull
-    public E lower(@ParametricNullness E e) {
+    public @Nullable E lower(@ParametricNullness E e) {
       return Iterators.find(unfiltered().headSet(e, false).descendingIterator(), predicate, null);
     }
 
     @Override
-    @CheckForNull
-    public E floor(@ParametricNullness E e) {
+    public @Nullable E floor(@ParametricNullness E e) {
       return Iterators.find(unfiltered().headSet(e, true).descendingIterator(), predicate, null);
     }
 
     @Override
-    @CheckForNull
-    public E ceiling(@ParametricNullness E e) {
+    public @Nullable E ceiling(@ParametricNullness E e) {
       return Iterables.find(unfiltered().tailSet(e, true), predicate, null);
     }
 
     @Override
-    @CheckForNull
-    public E higher(@ParametricNullness E e) {
+    public @Nullable E higher(@ParametricNullness E e) {
       return Iterables.find(unfiltered().tailSet(e, false), predicate, null);
     }
 
     @Override
-    @CheckForNull
-    public E pollFirst() {
+    public @Nullable E pollFirst() {
       return Iterables.removeFirstMatching(unfiltered(), predicate);
     }
 
     @Override
-    @CheckForNull
-    public E pollLast() {
+    public @Nullable E pollLast() {
       return Iterables.removeFirstMatching(unfiltered().descendingSet(), predicate);
     }
 
@@ -1305,11 +1290,11 @@ public final class Sets {
    * sets in order; the "n-ary <a href="http://en.wikipedia.org/wiki/Cartesian_product">Cartesian
    * product</a>" of the sets. For example:
    *
-   * <pre>{@code
+   * {@snippet :
    * Sets.cartesianProduct(ImmutableList.of(
    *     ImmutableSet.of(1, 2),
    *     ImmutableSet.of("A", "B", "C")))
-   * }</pre>
+   * }
    *
    * <p>returns a set containing six lists:
    *
@@ -1325,7 +1310,7 @@ public final class Sets {
    * <p>The result is guaranteed to be in the "traditional", lexicographical order for Cartesian
    * products that you would get from nesting for loops:
    *
-   * <pre>{@code
+   * {@snippet :
    * for (B b0 : sets.get(0)) {
    *   for (B b1 : sets.get(1)) {
    *     ...
@@ -1333,7 +1318,7 @@ public final class Sets {
    *     // operate on tuple
    *   }
    * }
-   * }</pre>
+   * }
    *
    * <p>Note that if any input set is empty, the Cartesian product will also be empty. If no sets at
    * all are provided (an empty list), the resulting Cartesian product has one element, an empty
@@ -1362,11 +1347,11 @@ public final class Sets {
    * sets in order; the "n-ary <a href="http://en.wikipedia.org/wiki/Cartesian_product">Cartesian
    * product</a>" of the sets. For example:
    *
-   * <pre>{@code
+   * {@snippet :
    * Sets.cartesianProduct(
    *     ImmutableSet.of(1, 2),
    *     ImmutableSet.of("A", "B", "C"))
-   * }</pre>
+   * }
    *
    * <p>returns a set containing six lists:
    *
@@ -1382,7 +1367,7 @@ public final class Sets {
    * <p>The result is guaranteed to be in the "traditional", lexicographical order for Cartesian
    * products that you would get from nesting for loops:
    *
-   * <pre>{@code
+   * {@snippet :
    * for (B b0 : sets.get(0)) {
    *   for (B b1 : sets.get(1)) {
    *     ...
@@ -1390,7 +1375,7 @@ public final class Sets {
    *     // operate on tuple
    *   }
    * }
-   * }</pre>
+   * }
    *
    * <p>Note that if any input set is empty, the Cartesian product will also be empty. If no sets at
    * all are provided (an empty list), the resulting Cartesian product has one element, an empty
@@ -1429,7 +1414,7 @@ public final class Sets {
         }
         axesBuilder.add(copy);
       }
-      final ImmutableList<ImmutableSet<E>> axes = axesBuilder.build();
+      ImmutableList<ImmutableSet<E>> axes = axesBuilder.build();
       ImmutableList<List<E>> listAxes =
           new ImmutableList<List<E>>() {
             @Override
@@ -1470,7 +1455,7 @@ public final class Sets {
     }
 
     @Override
-    public boolean contains(@CheckForNull Object object) {
+    public boolean contains(@Nullable Object object) {
       if (!(object instanceof List)) {
         return false;
       }
@@ -1489,7 +1474,7 @@ public final class Sets {
     }
 
     @Override
-    public boolean equals(@CheckForNull Object object) {
+    public boolean equals(@Nullable Object object) {
       // Warning: this is broken if size() == 0, so it is critical that we
       // substitute an empty ImmutableSet to the user in place of this
       if (object instanceof CartesianSet) {
@@ -1593,7 +1578,7 @@ public final class Sets {
     }
 
     @Override
-    public boolean contains(@CheckForNull Object o) {
+    public boolean contains(@Nullable Object o) {
       Integer index = inputSet.get(o);
       return index != null && (mask & (1 << index)) != 0;
     }
@@ -1622,14 +1607,14 @@ public final class Sets {
     public Iterator<Set<E>> iterator() {
       return new AbstractIndexedListIterator<Set<E>>(size()) {
         @Override
-        protected Set<E> get(final int setBits) {
+        protected Set<E> get(int setBits) {
           return new SubSet<>(inputSet, setBits);
         }
       };
     }
 
     @Override
-    public boolean contains(@CheckForNull Object obj) {
+    public boolean contains(@Nullable Object obj) {
       if (obj instanceof Set) {
         Set<?> set = (Set<?>) obj;
         return inputSet.keySet().containsAll(set);
@@ -1638,7 +1623,7 @@ public final class Sets {
     }
 
     @Override
-    public boolean equals(@CheckForNull Object obj) {
+    public boolean equals(@Nullable Object obj) {
       if (obj instanceof PowerSet) {
         PowerSet<?> that = (PowerSet<?>) obj;
         return inputSet.keySet().equals(that.inputSet.keySet());
@@ -1686,8 +1671,8 @@ public final class Sets {
    * @throws NullPointerException if {@code set} is or contains {@code null}
    * @since 23.0
    */
-  public static <E> Set<Set<E>> combinations(Set<E> set, final int size) {
-    final ImmutableMap<E, Integer> index = Maps.indexMap(set);
+  public static <E> Set<Set<E>> combinations(Set<E> set, int size) {
+    ImmutableMap<E, Integer> index = Maps.indexMap(set);
     checkNonnegative(size, "size");
     checkArgument(size <= index.size(), "size (%s) must be <= set.size() (%s)", size, index.size());
     if (size == 0) {
@@ -1697,7 +1682,7 @@ public final class Sets {
     }
     return new AbstractSet<Set<E>>() {
       @Override
-      public boolean contains(@CheckForNull Object o) {
+      public boolean contains(@Nullable Object o) {
         if (o instanceof Set) {
           Set<?> s = (Set<?>) o;
           return s.size() == size && index.keySet().containsAll(s);
@@ -1711,8 +1696,7 @@ public final class Sets {
           final BitSet bits = new BitSet(index.size());
 
           @Override
-          @CheckForNull
-          protected Set<E> computeNext() {
+          protected @Nullable Set<E> computeNext() {
             if (bits.isEmpty()) {
               bits.set(0, size);
             } else {
@@ -1740,10 +1724,10 @@ public final class Sets {
               bits.clear(bitToFlip - firstSetBit - 1, bitToFlip);
               bits.set(bitToFlip);
             }
-            final BitSet copy = (BitSet) bits.clone();
+            BitSet copy = (BitSet) bits.clone();
             return new AbstractSet<E>() {
               @Override
-              public boolean contains(@CheckForNull Object o) {
+              public boolean contains(@Nullable Object o) {
                 Integer i = index.get(o);
                 return i != null && copy.get(i);
               }
@@ -1754,8 +1738,7 @@ public final class Sets {
                   int i = -1;
 
                   @Override
-                  @CheckForNull
-                  protected E computeNext() {
+                  protected @Nullable E computeNext() {
                     i = copy.nextSetBit(i + 1);
                     if (i == -1) {
                       return endOfData();
@@ -1799,7 +1782,7 @@ public final class Sets {
   }
 
   /** An implementation for {@link Set#equals(Object)}. */
-  static boolean equalsImpl(Set<?> s, @CheckForNull Object object) {
+  static boolean equalsImpl(Set<?> s, @Nullable Object object) {
     if (s == object) {
       return true;
     }
@@ -1854,42 +1837,36 @@ public final class Sets {
     }
 
     @Override
-    @CheckForNull
-    public E lower(@ParametricNullness E e) {
+    public @Nullable E lower(@ParametricNullness E e) {
       return delegate.lower(e);
     }
 
     @Override
-    @CheckForNull
-    public E floor(@ParametricNullness E e) {
+    public @Nullable E floor(@ParametricNullness E e) {
       return delegate.floor(e);
     }
 
     @Override
-    @CheckForNull
-    public E ceiling(@ParametricNullness E e) {
+    public @Nullable E ceiling(@ParametricNullness E e) {
       return delegate.ceiling(e);
     }
 
     @Override
-    @CheckForNull
-    public E higher(@ParametricNullness E e) {
+    public @Nullable E higher(@ParametricNullness E e) {
       return delegate.higher(e);
     }
 
     @Override
-    @CheckForNull
-    public E pollFirst() {
+    public @Nullable E pollFirst() {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    @CheckForNull
-    public E pollLast() {
+    public @Nullable E pollLast() {
       throw new UnsupportedOperationException();
     }
 
-    @LazyInit @CheckForNull private transient UnmodifiableNavigableSet<E> descendingSet;
+    @LazyInit private transient @Nullable UnmodifiableNavigableSet<E> descendingSet;
 
     @Override
     public NavigableSet<E> descendingSet() {
@@ -1926,7 +1903,7 @@ public final class Sets {
       return unmodifiableNavigableSet(delegate.tailSet(fromElement, inclusive));
     }
 
-    private static final long serialVersionUID = 0;
+    @GwtIncompatible @J2ktIncompatible private static final long serialVersionUID = 0;
   }
 
   /**
@@ -1938,7 +1915,7 @@ public final class Sets {
    * iterating over it or any of its {@code descendingSet}, {@code subSet}, {@code headSet}, or
    * {@code tailSet} views.
    *
-   * <pre>{@code
+   * {@snippet :
    * NavigableSet<E> set = synchronizedNavigableSet(new TreeSet<E>());
    *  ...
    * synchronized (set) {
@@ -1948,22 +1925,22 @@ public final class Sets {
    *     foo(it.next());
    *   }
    * }
-   * }</pre>
+   * }
    *
    * <p>or:
    *
-   * <pre>{@code
+   * {@snippet :
    * NavigableSet<E> set = synchronizedNavigableSet(new TreeSet<E>());
    * NavigableSet<E> set2 = set.descendingSet().headSet(foo);
    *  ...
    * synchronized (set) { // Note: set, not set2!!!
    *   // Must be in the synchronized block
    *   Iterator<E> it = set2.descendingIterator();
-   *   while (it.hasNext())
+   *   while (it.hasNext()) {
    *     foo(it.next());
    *   }
    * }
-   * }</pre>
+   * }
    *
    * <p>Failure to follow this advice may result in non-deterministic behavior.
    *
@@ -2025,38 +2002,32 @@ public final class Sets {
     }
 
     @Override
-    @CheckForNull
-    public E lower(@ParametricNullness E e) {
+    public @Nullable E lower(@ParametricNullness E e) {
       return forward.higher(e);
     }
 
     @Override
-    @CheckForNull
-    public E floor(@ParametricNullness E e) {
+    public @Nullable E floor(@ParametricNullness E e) {
       return forward.ceiling(e);
     }
 
     @Override
-    @CheckForNull
-    public E ceiling(@ParametricNullness E e) {
+    public @Nullable E ceiling(@ParametricNullness E e) {
       return forward.floor(e);
     }
 
     @Override
-    @CheckForNull
-    public E higher(@ParametricNullness E e) {
+    public @Nullable E higher(@ParametricNullness E e) {
       return forward.lower(e);
     }
 
     @Override
-    @CheckForNull
-    public E pollFirst() {
+    public @Nullable E pollFirst() {
       return forward.pollLast();
     }
 
     @Override
-    @CheckForNull
-    public E pollLast() {
+    public @Nullable E pollLast() {
       return forward.pollFirst();
     }
 

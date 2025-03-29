@@ -39,7 +39,7 @@ import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
-import javax.annotation.CheckForNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * See MurmurHash3_x86_32 in <a
@@ -51,7 +51,7 @@ import javax.annotation.CheckForNull;
  * @author Kurt Alfred Kluever
  */
 @Immutable
-@ElementTypesAreNonnullByDefault
+@SuppressWarnings("IdentifierName") // the best we could do for adjacent digit blocks
 final class Murmur3_32HashFunction extends AbstractHashFunction implements Serializable {
   static final HashFunction MURMUR3_32 =
       new Murmur3_32HashFunction(0, /* supplementaryPlaneFix= */ false);
@@ -92,7 +92,7 @@ final class Murmur3_32HashFunction extends AbstractHashFunction implements Seria
   }
 
   @Override
-  public boolean equals(@CheckForNull Object object) {
+  public boolean equals(@Nullable Object object) {
     if (object instanceof Murmur3_32HashFunction) {
       Murmur3_32HashFunction other = (Murmur3_32HashFunction) object;
       return seed == other.seed && supplementaryPlaneFix == other.supplementaryPlaneFix;
@@ -150,7 +150,7 @@ final class Murmur3_32HashFunction extends AbstractHashFunction implements Seria
 
   @Override
   public HashCode hashString(CharSequence input, Charset charset) {
-    if (UTF_8.equals(charset)) {
+    if (charset.equals(UTF_8)) {
       int utf16Length = input.length();
       int h1 = seed;
       int i = 0;
@@ -353,7 +353,7 @@ final class Murmur3_32HashFunction extends AbstractHashFunction implements Seria
     @CanIgnoreReturnValue
     @Override
     public Hasher putString(CharSequence input, Charset charset) {
-      if (UTF_8.equals(charset)) {
+      if (charset.equals(UTF_8)) {
         int utf16Length = input.length();
         int i = 0;
 

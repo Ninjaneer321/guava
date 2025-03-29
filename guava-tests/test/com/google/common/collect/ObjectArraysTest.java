@@ -25,7 +25,8 @@ import com.google.common.testing.NullPointerTester;
 import java.util.Arrays;
 import java.util.List;
 import junit.framework.TestCase;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Unit test for {@code ObjectArrays}.
@@ -33,7 +34,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @author Kevin Bourrillion
  */
 @GwtCompatible(emulated = true)
-@ElementTypesAreNonnullByDefault
+@NullMarked
 public class ObjectArraysTest extends TestCase {
 
   @J2ktIncompatible
@@ -151,9 +152,7 @@ public class ObjectArraysTest extends TestCase {
   private void doTestToArrayImpl2(List<Integer> list, Integer[] array1, boolean expectModify) {
     Integer[] starting = Arrays.copyOf(array1, array1.length);
     Integer[] array2 = Arrays.copyOf(array1, array1.length);
-    // TODO b/283448200 - Remove temporary variable when Kotlin smartcast issue is resolved.
-    Integer[] array1Tmp = array1;
-    Object[] reference = list.toArray(array1Tmp);
+    Object[] reference = list.toArray(array1);
 
     Object[] target = ObjectArrays.toArrayImpl(list, array2);
 

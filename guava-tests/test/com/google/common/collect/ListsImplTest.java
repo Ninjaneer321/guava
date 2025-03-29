@@ -34,11 +34,12 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 /** Tests the package level *impl methods directly using various types of lists. */
 @GwtCompatible(emulated = true)
-@ElementTypesAreNonnullByDefault
+@NullMarked
 public class ListsImplTest extends TestCase {
 
   /** Describes how a list is modifiable */
@@ -242,7 +243,6 @@ public class ListsImplTest extends TestCase {
   }
 
   @SafeVarargs
-  @SuppressWarnings("varargs")
   private final <T> List<T> createList(Class<T> listType, T... contents) {
     return getExample().createList(listType, asList(contents));
   }
@@ -266,6 +266,8 @@ public class ListsImplTest extends TestCase {
     }
 
     @Override
+    // We are testing our utilities on LinkedList.
+    @SuppressWarnings("JdkObsolete")
     public <T> List<T> createList(Class<T> listType, Collection<? extends T> contents) {
       return new LinkedList<>(contents);
     }

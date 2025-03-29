@@ -39,7 +39,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Range;
 import com.google.common.collect.Sets;
-import com.google.common.collect.testing.TestCollectionGenerator;
 import com.google.common.collect.testing.TestCollidingSetGenerator;
 import com.google.common.collect.testing.TestIntegerSortedSetGenerator;
 import com.google.common.collect.testing.TestSetGenerator;
@@ -53,6 +52,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
+import org.jspecify.annotations.NullMarked;
 
 /**
  * Generators of different types of sets and derived collections from sets.
@@ -62,7 +62,7 @@ import java.util.SortedSet;
  * @author Hayward Chan
  */
 @GwtCompatible(emulated = true)
-@ElementTypesAreNonnullByDefault
+@NullMarked
 public class SetGenerators {
 
   public static class ImmutableSetCopyOfGenerator extends TestStringSetGenerator {
@@ -119,11 +119,7 @@ public class SetGenerators {
     }
   }
 
-  public static class ImmutableSetWithBadHashesGenerator extends TestCollidingSetGenerator
-      // Work around a GWT compiler bug.  Not explicitly listing this will
-      // cause the createArray() method missing in the generated javascript.
-      // TODO: Remove this once the GWT bug is fixed.
-      implements TestCollectionGenerator<Object> {
+  public static class ImmutableSetWithBadHashesGenerator extends TestCollidingSetGenerator {
     @Override
     public Set<Object> create(Object... elements) {
       return ImmutableSet.copyOf(elements);
@@ -131,12 +127,10 @@ public class SetGenerators {
   }
 
   public static class DegeneratedImmutableSetGenerator extends TestStringSetGenerator {
-    // Make sure we get what we think we're getting, or else this test
-    // is pointless
-    @SuppressWarnings("cast")
+    @SuppressWarnings("DistinctVarargsChecker") // deliberately testing deduplication
     @Override
     protected Set<String> create(String[] elements) {
-      return (ImmutableSet<String>) ImmutableSet.of(elements[0], elements[0]);
+      return ImmutableSet.of(elements[0], elements[0]);
     }
   }
 
@@ -192,6 +186,12 @@ public class SetGenerators {
       return ImmutableSortedSet.orderedBy(STRING_REVERSED).add(elements).build();
     }
 
+    /*
+     * While the current implementation returns `this`, that's not something we mean to guarantee.
+     * Callers of TestContainerGenerator.order need to be prepared for implementations to return a new
+     * collection.
+     */
+    @SuppressWarnings("CanIgnoreReturnValueSuggester")
     @Override
     public List<String> order(List<String> insertionOrder) {
       sort(insertionOrder, Collections.reverseOrder());
@@ -209,6 +209,7 @@ public class SetGenerators {
       return new ImmutableSortedSet.Builder<String>(COMPARABLE_REVERSED).add(elements).build();
     }
 
+    @SuppressWarnings("CanIgnoreReturnValueSuggester") // see ImmutableSortedSetExplicitComparator
     @Override
     public List<String> order(List<String> insertionOrder) {
       sort(insertionOrder, Collections.reverseOrder());
@@ -223,6 +224,7 @@ public class SetGenerators {
       return ImmutableSortedSet.<String>reverseOrder().addAll(asList(elements).iterator()).build();
     }
 
+    @SuppressWarnings("CanIgnoreReturnValueSuggester") // see ImmutableSortedSetExplicitComparator
     @Override
     public List<String> order(List<String> insertionOrder) {
       sort(insertionOrder, Collections.reverseOrder());
@@ -400,6 +402,7 @@ public class SetGenerators {
     }
 
     /** Sorts the elements in reverse natural order. */
+    @SuppressWarnings("CanIgnoreReturnValueSuggester") // see ImmutableSortedSetExplicitComparator
     @Override
     public List<Integer> order(List<Integer> insertionOrder) {
       sort(insertionOrder, Ordering.<Integer>natural().reverse());

@@ -80,7 +80,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Unit test for {@code Sets}.
@@ -89,7 +90,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @author Jared Levy
  */
 @GwtCompatible(emulated = true)
-@ElementTypesAreNonnullByDefault
+@NullMarked
 public class SetsTest extends TestCase {
 
   private static final IteratorTester.KnownOrder KNOWN_ORDER =
@@ -113,6 +114,7 @@ public class SetsTest extends TestCase {
 
   @J2ktIncompatible
   @GwtIncompatible // suite
+  @AndroidIncompatible // test-suite builders
   public static Test suite() {
     TestSuite suite = new TestSuite();
     suite.addTestSuite(SetsTest.class);
@@ -226,6 +228,7 @@ public class SetsTest extends TestCase {
 
   @J2ktIncompatible
   @GwtIncompatible // suite
+  @AndroidIncompatible // test-suite builders
   private static Test testsForFilter() {
     return SetTestSuiteBuilder.using(
             new TestStringSetGenerator() {
@@ -250,6 +253,7 @@ public class SetsTest extends TestCase {
 
   @J2ktIncompatible
   @GwtIncompatible // suite
+  @AndroidIncompatible // test-suite builders
   private static Test testsForFilterNoNulls() {
     TestSuite suite = new TestSuite();
     suite.addTest(
@@ -302,6 +306,7 @@ public class SetsTest extends TestCase {
 
   @J2ktIncompatible
   @GwtIncompatible // suite
+  @AndroidIncompatible // test-suite builders
   private static Test testsForFilterFiltered() {
     return SetTestSuiteBuilder.using(
             new TestStringSetGenerator() {
@@ -657,6 +662,7 @@ public class SetsTest extends TestCase {
   }
 
   public void testNewSetFromMap() {
+    @SuppressWarnings({"deprecation", "InlineMeInliner"}) // test of a deprecated method
     Set<Integer> set = Sets.newSetFromMap(new HashMap<Integer, Boolean>());
     set.addAll(SOME_COLLECTION);
     verifySetContents(set, SOME_COLLECTION);
@@ -665,12 +671,14 @@ public class SetsTest extends TestCase {
   @J2ktIncompatible
   @GwtIncompatible // SerializableTester
   public void testNewSetFromMapSerialization() {
+    @SuppressWarnings({"deprecation", "InlineMeInliner"}) // test of a deprecated method
     Set<Integer> set = Sets.newSetFromMap(new LinkedHashMap<Integer, Boolean>());
     set.addAll(SOME_COLLECTION);
     Set<Integer> copy = SerializableTester.reserializeAndAssert(set);
     assertThat(copy).containsExactly(0, 1).inOrder();
   }
 
+  @SuppressWarnings({"deprecation", "InlineMeInliner"}) // test of a deprecated method
   public void testNewSetFromMapIllegal() {
     Map<Integer, Boolean> map = new LinkedHashMap<>();
     map.put(2, true);

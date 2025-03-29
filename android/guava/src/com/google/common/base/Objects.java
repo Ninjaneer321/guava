@@ -16,8 +16,7 @@ package com.google.common.base;
 
 import com.google.common.annotations.GwtCompatible;
 import java.util.Arrays;
-import javax.annotation.CheckForNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Helper functions that can operate on any {@code Object}.
@@ -30,7 +29,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @since 2.0
  */
 @GwtCompatible
-@ElementTypesAreNonnullByDefault
 public final class Objects extends ExtraObjectsMethodsForWeb {
   private Objects() {}
 
@@ -50,7 +48,7 @@ public final class Objects extends ExtraObjectsMethodsForWeb {
    * <p><b>Note:</b> this method is now unnecessary and should be treated as deprecated; use {@link
    * java.util.Objects#equals} instead.
    */
-  public static boolean equal(@CheckForNull Object a, @CheckForNull Object b) {
+  public static boolean equal(@Nullable Object a, @Nullable Object b) {
     return a == b || (a != null && a.equals(b));
   }
 
@@ -63,11 +61,11 @@ public final class Objects extends ExtraObjectsMethodsForWeb {
    * <p>This is useful for implementing {@link Object#hashCode()}. For example, in an object that
    * has three properties, {@code x}, {@code y}, and {@code z}, one could write:
    *
-   * <pre>{@code
+   * {@snippet :
    * public int hashCode() {
    *   return Objects.hashCode(getX(), getY(), getZ());
    * }
-   * }</pre>
+   * }
    *
    * <p><b>Warning:</b> When a single object is supplied, the returned hash code does not equal the
    * hash code of that object.
@@ -75,7 +73,7 @@ public final class Objects extends ExtraObjectsMethodsForWeb {
    * <p><b>Note:</b> this method is now unnecessary and should be treated as deprecated; use {@link
    * java.util.Objects#hash} instead.
    */
-  public static int hashCode(@CheckForNull @Nullable Object... objects) {
+  public static int hashCode(@Nullable Object @Nullable ... objects) {
     return Arrays.hashCode(objects);
   }
 }
